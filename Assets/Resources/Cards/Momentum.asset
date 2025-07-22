@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
+  m_Name: Momentum
+  m_EditorClassIdentifier: 
+  onRevealEffect: {fileID: 0}
+  ongoingEffect: {fileID: 11400000, guid: 943364b2e72e31245b058415807e5530, type: 2}
+  conditionalEffect: {fileID: 0}
+  cardName: Momentum
+  energyCost: 2
+  power: 2
+  abilityType: 2
+  description: +5 Poder
+  artwork: {fileID: 0}
