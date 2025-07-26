@@ -6,6 +6,20 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+	/// <summary>
+	/// pediente:
+	/// usar drag and drop para jugar las cartas
+	/// crear preview de carta al tocarla
+	/// que las cartas se juegen al mismo tiempo
+	/// agregar efectos ON ACTIVATE(en la preview se muestra un boton que permite activar la carta
+	/// crear efectos de zona - que las zonas se vayan revelando al turno 1 dos y tres
+	/// agregar la prioridad del juego y de las cartas
+	/// crear escena de construccion de baraja
+	/// crear 4 personajes con sus barajas (Basarte en el modo arena)
+	/// crear escena de seleccion de personaje
+	/// cear escena de menu principal
+	/// </summary>
+	
 	public static GameManager Instance;
 
 	public PlayerController player;
@@ -25,6 +39,9 @@ public class GameManager : MonoBehaviour
 	private Dictionary<CardInstance, int> delayedEffects = new();
 	//private List<CardInstance> delayedEffectCards = new List<CardInstance>();
 	private bool playerPlayedCardLastTurn = false;
+	
+	[Header("Efectos posibles para zonas")]
+	public List<ZoneEffect> zonaEffectPrefabs;
 
 	private void Awake()
 	{
@@ -43,6 +60,37 @@ public class GameManager : MonoBehaviour
 		}
 		
 		UpdateEnergyDisplay();
+		AsignarEfectosAleatoriosAZonas();
+	}
+	
+	// Random zone effects
+	void AsignarEfectosAleatoriosAZonas()
+	{
+		foreach (var zona in zones)
+		{
+			if (zonaEffectPrefabs.Count == 0) return;
+
+			int index = Random.Range(0, zonaEffectPrefabs.Count);
+			var efectoBase = zonaEffectPrefabs[index];
+
+			// Agregar componente dinámicamente del tipo del efecto
+			System.Type tipo = efectoBase.GetType();
+			var nuevoEfecto = zona.gameObject.AddComponent(tipo) as ZoneEffect;
+
+			// Copiar campos básicos
+			nuevoEfecto.effectName = efectoBase.effectName;
+			nuevoEfecto.description = efectoBase.description;
+
+			// Si tiene campos específicos como "amount", se deben copiar también manualmente
+			if (efectoBase is ZoneBuffAllCards buff)
+			((ZoneBuffAllCards)nuevoEfecto).amount = buff.amount;
+
+			else if (efectoBase is ZoneWeakenAllCards debuff)
+			((ZoneWeakenAllCards)nuevoEfecto).amount = debuff.amount;
+
+			else if (efectoBase is BonusPowerZoneEffect bonus)
+			((BonusPowerZoneEffect)nuevoEfecto).bonusAmount = bonus.bonusAmount;
+		}
 	}
 	
 	public bool PlayerCanPlay(CardData card)
@@ -78,6 +126,12 @@ public class GameManager : MonoBehaviour
 
 	public void EndTurn()
 	{
+		// mostrar ocultar panel de info de zona
+		foreach (var zone in zones)
+		{
+			zone.NotifyTurnEnd();
+		}
+		
 		ai.PlayCardAutomatically();
 		// on reveal
 		foreach (var pair in delayedEffects)
@@ -149,4 +203,16 @@ public class GameManager : MonoBehaviour
 	{
 		delayedEffects[card] = bonus;
 	}
+	
+	public void PlayCardFromDrag(CardInstance card, Zone targetZone)
+	{
+		turnManager.playerEnergy -= card.data.energyCost;
+
+		player.hand.Remove(card.data);
+		card.transform.SetParent(null);
+		card.PlayCard(targetZone);
+
+		UpdateEnergyDisplay();
+	}
+
 }

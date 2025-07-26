@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 
-public class Zone : MonoBehaviour, IPointerClickHandler
+public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 {
 	public List<CardInstance> playerCards = new List<CardInstance>();
 	public List<CardInstance> aiCards = new List<CardInstance>();
@@ -13,9 +15,65 @@ public class Zone : MonoBehaviour, IPointerClickHandler
 	
 	public TextMeshProUGUI playerPowerText;
 	public TextMeshProUGUI aiPowerText;
+	
+	public List<CardInstance> cardsInZone = new List<CardInstance>();
+	public List<ZoneEffect> effects = new List<ZoneEffect>();
+	
+	[Header("UI")]
+	public Button infoButton;
+	public GameObject effectInfoPanel;
+	public TextMeshProUGUI effectInfoText;
+	
+	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
+	protected void Start()
+	{
+		effects = GetComponents<ZoneEffect>().ToList();
+		
+		if (infoButton != null)
+		{
+			infoButton.onClick.AddListener(ShowEffectPanel);
+		}
+		
+		if (effectInfoPanel != null)
+		{
+			effectInfoPanel.SetActive(false);
+		}
+	}
+	
+	public void ShowEffectPanel()
+	{
+		if (effectInfoPanel != null && effectInfoText != null)
+		{
+			string fullText = "";
+			foreach (var effect in effects)
+			{
+				fullText += $"<b>{effect.effectName}</b>\n{effect.description}\n\n";
+			}
+			
+			effectInfoText.text = fullText.Trim();
+			effectInfoPanel.SetActive(true);
+		}
+	}
+	
+	public void HideEffectPanel()
+	{
+		if (effectInfoPanel != null)
+		{
+			effectInfoPanel.SetActive(false);
+		}
+	}
 
 	public void AddCard(CardInstance card)
 	{
+		// Efecto de la zona
+		cardsInZone.Add(card);
+		
+		// Aplica efectos al agregar la carta
+		foreach(var effect in effects)
+		{
+			effect.OnCardPlayed(card, this);
+		}
+		
 		// max 4 cards per zone
 		var list = card.isPlayerCard ? playerCards:aiCards;
 		
@@ -31,6 +89,23 @@ public class Zone : MonoBehaviour, IPointerClickHandler
 		card.transform.SetParent(target, false);
 		card.transform.localScale = Vector3.one;
 		UpdatePowerDisplay();
+	}
+	
+	// Efectos de la zona
+	public void NotifyTurnStart()
+	{
+		foreach (var effect in effects)
+		{
+			effect.OnTurnStart(this);
+		}
+	}
+	
+	public void NotifyTurnEnd()
+	{
+		foreach(var effect in effects)
+		{
+			effect.OnTurnEnd(this);
+		}
 	}
 
 	public void RegisterOngoing(CardInstance card)
@@ -64,19 +139,16 @@ public class Zone : MonoBehaviour, IPointerClickHandler
 		GameManager.Instance.PlaySelectedCardInZone(this);
 	}
 	
-	// Efectos Ongoing
-	//public void RegisterOnGoing(CardInstance card)
-	//{
-	//	if (card.effectApplied == false) {
-	//		return;
-	//	}
-		
-	//	if (card.data.cardName == "Swarm Booster") //colocar el nombre para aplicar el efecto
-	//	{
-	//		int totalCards = playerCards.Count + aiCards.Count;
-	//		card.currentPower += totalCards;
-	//		card.effectApplied = true;
-	//	}
-	//	UpdatePowerDisplay();
-	//}
+	public void OnDrop(PointerEventData eventData)
+	{
+		var droppedCard = eventData.pointerDrag?.GetComponent<CardInstance>();
+
+		if (droppedCard != null && droppedCard.isPlayerCard)
+		{
+			if (!GameManager.Instance.PlayerCanPlay(droppedCard.data)) return;
+
+			GameManager.Instance.PlayCardFromDrag(droppedCard, this);
+		}
+	}
+
 }
