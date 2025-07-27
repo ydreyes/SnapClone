@@ -8,16 +8,19 @@ public class GameManager : MonoBehaviour
 {
 	/// <summary>
 	/// pediente:
-	/// usar drag and drop para jugar las cartas
-	/// crear preview de carta al tocarla
+	/// usar drag and drop para jugar las cartas - Listo
+	/// crear preview de carta al tocarla - Listo
+	/// agregar efectos ON ACTIVATE - La habilidad solo se debe activar una vez
+	/// Agregar hechizos (cartas que desaparecen al ser jugadas)
 	/// que las cartas se juegen al mismo tiempo
-	/// agregar efectos ON ACTIVATE(en la preview se muestra un boton que permite activar la carta
 	/// crear efectos de zona - que las zonas se vayan revelando al turno 1 dos y tres
 	/// agregar la prioridad del juego y de las cartas
 	/// crear escena de construccion de baraja
 	/// crear 4 personajes con sus barajas (Basarte en el modo arena)
 	/// crear escena de seleccion de personaje
+	/// crear escena que muestre la ruta a seguir para llegar al jefe
 	/// cear escena de menu principal
+	/// pulir la demo: agregarle jugo, efectos, canciones, sonidos, etc.
 	/// </summary>
 	
 	public static GameManager Instance;
@@ -37,11 +40,16 @@ public class GameManager : MonoBehaviour
 	
 	// logica de on reveal
 	private Dictionary<CardInstance, int> delayedEffects = new();
-	//private List<CardInstance> delayedEffectCards = new List<CardInstance>();
 	private bool playerPlayedCardLastTurn = false;
 	
 	[Header("Efectos posibles para zonas")]
 	public List<ZoneEffect> zonaEffectPrefabs;
+	
+	//bandera para la preview de cartas
+	private bool isDraggingCard = false;
+	public void SetDragging(bool value) => isDraggingCard = value;
+	public bool IsDragging() => isDraggingCard;
+
 
 	private void Awake()
 	{
@@ -213,6 +221,16 @@ public class GameManager : MonoBehaviour
 		card.PlayCard(targetZone);
 
 		UpdateEnergyDisplay();
+	}
+	
+	public Zone GetZoneForCard(CardInstance card)
+	{
+		foreach (var zone in zones)
+		{
+			if (zone.playerCards.Contains(card) || zone.aiCards.Contains(card))
+				return zone;
+		}
+		return null;
 	}
 
 }

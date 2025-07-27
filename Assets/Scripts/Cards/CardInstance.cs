@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler //IPointerClickHandler
+public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
 	public CardData data;
 	public bool isPlayerCard;
@@ -24,7 +24,6 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	{
 		canvasGroup = GetComponent<CanvasGroup>();
 		rectTransform = GetComponent<RectTransform>();
-		//canvas = GetComponent<Canvas>();
 	}
 
 	protected void Start()
@@ -44,6 +43,8 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		originalParent = transform.parent;
 		canvasGroup.blocksRaycasts = false;
 		transform.SetParent(originalParent.root); // para que se arrastre por encima
+		
+		GameManager.Instance.SetDragging(true); // en OnBeginDrag
 	}
 	
 	public void OnDrag(PointerEventData eventData)
@@ -65,15 +66,9 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 			transform.SetParent(originalParent);
 			rectTransform.anchoredPosition = Vector2.zero;
 		}
+		
+		GameManager.Instance.SetDragging(false); // en OnEndDrag
 	}
-	
-	//public void OnPointerClick(PointerEventData eventData)
-	//{
-	//	if (!isPlayerCard) return;
-	//	if (!GameManager.Instance.PlayerCanPlay(data)) return;
-
-	//	GameManager.Instance.SelectCardToPlay(this);
-	//}
 
 	public void PlayCard(Zone zone)
 	{
@@ -93,4 +88,27 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		
 		zone.UpdatePowerDisplay();
 	}
+	
+	public void OnPointerClick(PointerEventData eventData)
+	{
+		if (!isPlayerCard)
+		{
+			return;
+		}
+		
+		if (!GameManager.Instance.IsDragging());
+		{
+			CardPreviewUI.Instance.Show(this);
+		}
+		
+	}
+	
+	public void Activate()
+	{
+		if (data.onActivateEffect != null)
+		{
+			data.onActivateEffect.ApplyEffect(this, GameManager.Instance.GetZoneForCard(this));
+		}
+	}
+
 }
