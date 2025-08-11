@@ -10,6 +10,8 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public bool effectApplied = false;
 	// bandera para efecto onreveal
 	public bool pendingBoostNextTurn = false;
+	// bandera para efecto OnActivate
+	public bool hasBeenActivated = false;
 	// Efecto condicional
 	public bool canMoveOnce;
 	
@@ -96,19 +98,45 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 			return;
 		}
 		
-		if (!GameManager.Instance.IsDragging());
+		if (!GameManager.Instance.IsDragging())
 		{
 			CardPreviewUI.Instance.Show(this);
 		}
-		
+	}
+	
+	// Helper: ¿se puede activar ahora?
+	public bool CanActivate()
+	{
+		if (hasBeenActivated) return false;
+		if (data.onActivateEffect == null) return false;
+		if (!isPlayerCard) return false; // solo el jugador activa desde UI
+		// Debe estar en una zona del tablero
+		var zone = GameManager.Instance.GetZoneForCard(this);
+		if (zone == null) return false;
+		// Si pones costo de activación
+		if (data.energyCost > GameManager.Instance.turnManager.playerEnergy) return false;
+
+		return true;
 	}
 	
 	public void Activate()
 	{
-		if (data.onActivateEffect != null)
+		if (!CanActivate()) return;
+
+		// Pagar costo opcional
+		if (data.energyCost > 0)
 		{
-			data.onActivateEffect.ApplyEffect(this, GameManager.Instance.GetZoneForCard(this));
+			GameManager.Instance.turnManager.playerEnergy -= data.energyCost;
+			GameManager.Instance.UpdateEnergyDisplay();
 		}
+
+		// Ejecutar el efecto
+		var zone = GameManager.Instance.GetZoneForCard(this);
+		data.onActivateEffect.ApplyEffect(this, zone);
+
+		hasBeenActivated = true;  // ← clave: solo una vez
+		// Si el efecto cambia poder, refresca la UI de la zona
+		zone.UpdatePowerDisplay();
 	}
 
 }

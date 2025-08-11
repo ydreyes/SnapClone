@@ -10,16 +10,16 @@ public class GameManager : MonoBehaviour
 	/// pediente:
 	/// usar drag and drop para jugar las cartas - Listo
 	/// crear preview de carta al tocarla - Listo
+	/// cear escena de menu principal
+	/// crear escena de seleccion de personaje
+	/// crear 4 personajes con sus barajas (Basarte en el modo arena)
+	/// crear escena que muestre la ruta a seguir para llegar al jefe
+	/// crear escena de construccion de baraja
 	/// agregar efectos ON ACTIVATE - La habilidad solo se debe activar una vez
 	/// Agregar hechizos (cartas que desaparecen al ser jugadas)
 	/// que las cartas se juegen al mismo tiempo
 	/// crear efectos de zona - que las zonas se vayan revelando al turno 1 dos y tres
 	/// agregar la prioridad del juego y de las cartas
-	/// crear escena de construccion de baraja
-	/// crear 4 personajes con sus barajas (Basarte en el modo arena)
-	/// crear escena de seleccion de personaje
-	/// crear escena que muestre la ruta a seguir para llegar al jefe
-	/// cear escena de menu principal
 	/// pulir la demo: agregarle jugo, efectos, canciones, sonidos, etc.
 	/// </summary>
 	

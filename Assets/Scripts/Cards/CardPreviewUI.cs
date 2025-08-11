@@ -35,7 +35,8 @@ public class CardPreviewUI : MonoBehaviour
 		cardImage.sprite = card.data.artwork;
 		
 		// mostrar boton si tiene efecto activable
-		activateButton.gameObject.SetActive(card.data.hasActivateEffect);
+		//activateButton.gameObject.SetActive(card.data.hasActivateEffect);
+		activateButton.gameObject.SetActive(card.CanActivate());
 		
 		panel.SetActive(true);
 	}
@@ -47,10 +48,10 @@ public class CardPreviewUI : MonoBehaviour
 	
 	public void ActivateCardEffect()
 	{
-		if (currentCard != null)
-		{
-			currentCard.Activate(); // agregar funcion en card instance
-			Hide();
-		}
+		if (currentCard == null) return;
+		currentCard.Activate();
+		// tras activar, deshabilita el botón para que no se repita
+		activateButton.gameObject.SetActive(currentCard.CanActivate());
+		Hide(); // o déjalo abierto si prefieres
 	}
 }
