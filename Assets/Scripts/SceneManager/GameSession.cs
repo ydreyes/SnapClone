@@ -32,6 +32,6 @@ public class GameSession : MonoBehaviour
 					selectedAI = all[(System.Array.IndexOf(all, selectedCharacter) + 1) % all.Length];
 			}
 		}
-		SceneManager.LoadScene("GameScene"); // tu escena principal de partida
+		SceneManager.LoadScene("GameScene"); // Escena principal de la partida
 	}
 }

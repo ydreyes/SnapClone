@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afcc4520c1c509444843af8c4db752c5, type: 3}
   m_Name: SampleDeck
   m_EditorClassIdentifier: 
-  deckName: 
-  deckIcon: {fileID: 0}
+  deckName: Sample Deck
+  deckIcon: {fileID: 21300000, guid: f9a4bf89a8136412f985ca6719733d5e, type: 3}
   cards:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: e23f0fc44d0789a42b934a8a6e2bb630, type: 2}
+  - {fileID: 11400000, guid: a8a910d4424c70c4d8b13d47c462ce55, type: 2}
+  - {fileID: 11400000, guid: 7ff7d15e5b72c314d8d11e4f53012716, type: 2}
+  - {fileID: 11400000, guid: 4d8a9c93a62cf104990f72592c57f198, type: 2}
+  - {fileID: 11400000, guid: 7add7ce38e39efa4eabac1eed2e7c435, type: 2}
+  - {fileID: 11400000, guid: 3970e9d3c97c70b47b83bd55bfe81219, type: 2}
+  - {fileID: 11400000, guid: a7bbbb841e1ab2f4caedf4ba7d6d70dd, type: 2}
+  - {fileID: 11400000, guid: df6282539cc3771468507d90ae3b777d, type: 2}
+  - {fileID: 11400000, guid: a44532d987441a245880b4e971b27779, type: 2}
+  - {fileID: 11400000, guid: 8d5b7b85989f922488dd4110f742881b, type: 2}
+  - {fileID: 11400000, guid: 718d3f97ca3833340938a93b8947d14c, type: 2}
+  - {fileID: 11400000, guid: 6cea199a89494f6499e0251cb7b57300, type: 2}

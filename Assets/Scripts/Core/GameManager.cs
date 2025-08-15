@@ -10,8 +10,8 @@ public class GameManager : MonoBehaviour
 	/// pediente:
 	/// usar drag and drop para jugar las cartas - Listo
 	/// crear preview de carta al tocarla - Listo
-	/// cear escena de menu principal
-	/// crear escena de seleccion de personaje
+	/// cear escena de menu principal - Listo
+	/// crear escena de seleccion de personaje - Listo
 	/// crear 4 personajes con sus barajas (Basarte en el modo arena)
 	/// crear escena que muestre la ruta a seguir para llegar al jefe
 	/// crear escena de construccion de baraja
