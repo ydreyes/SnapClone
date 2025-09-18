@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
 {
 	public List<CardData> deck;
 	public List<CardData> hand = new List<CardData>();
+	public List<CardData> drawPile = new();
 	public Transform handArea;
 	public GameObject cardPrefab;
 
@@ -27,6 +28,14 @@ public class PlayerController : MonoBehaviour
 		deck.RemoveAt(0);
 		hand.Add(card);
 		InstantiateCard(card);
+	}
+	
+	public void ResetDeckAndHand()
+	{
+		hand.Clear();
+		drawPile.Clear();
+		drawPile.AddRange(deck);
+		// Si tienes GOs instanciados de la mano, destrúyelos aquí
 	}
 
 	void InstantiateCard(CardData cardData)

@@ -5,6 +5,7 @@ public class AIController : MonoBehaviour
 {
 	public List<CardData> deck;
 	public List<CardData> hand = new List<CardData>();
+	public List<CardData> drawPile = new();
 	public GameObject cardPrefab;
 	public Transform aiZoneArea;
 
@@ -26,6 +27,14 @@ public class AIController : MonoBehaviour
 		var card = deck[0];
 		deck.RemoveAt(0);
 		hand.Add(card);
+	}
+	
+	public void ResetDeckAndHand()
+	{
+		hand.Clear();
+		drawPile.Clear();
+		drawPile.AddRange(deck);
+		// Si tienes GOs instanciados de la mano, destrúyelos aquí
 	}
 
 	public void PlayCardAutomatically()

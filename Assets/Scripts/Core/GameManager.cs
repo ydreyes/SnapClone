@@ -69,6 +69,54 @@ public class GameManager : MonoBehaviour
 		
 		UpdateEnergyDisplay();
 		AsignarEfectosAleatoriosAZonas();
+		InitNewMatch();
+	}
+	
+	public void InitNewMatch()
+	{
+		// Limpia zonas/manos si reaprovechas la escena
+		foreach (var z in zones)
+		{
+			//foreach (var c in z.playerCards.ToArray()) { z.RemoveCard(c); if (c) Destroy(c.gameObject); }
+			//foreach (var c in z.aiCards.ToArray())     { z.RemoveCard(c); if (c) Destroy(c.gameObject); }
+			//z.UpdatePowerDisplay();
+			z.ClearAllCards(true);
+		}
+
+		// Reset de decks/hand
+		player.ResetDeckAndHand(); // ver §4.4
+		ai.ResetDeckAndHand();
+
+		// IA usa el deck del EnemyData elegido en ZoneScene
+		if (GameSession.Instance && GameSession.Instance.selectedEnemy && ai != null)
+		{
+			ai.deck = new System.Collections.Generic.List<CardData>(
+				GameSession.Instance.selectedEnemy.deck.cards
+			);
+			// si tu AI usa thinkDelay u otros parámetros, configúralos aquí
+			// ai.thinkDelay = GameSession.Instance.selectedEnemy.aiThinkDelay;
+		}
+
+		turnManager.ResetToTurn1(); // energía/turno = 1
+
+		for (int i = 0; i < 3; i++) { player.DrawCard(); ai.DrawCard(); }
+
+		UpdateEnergyDisplay();
+		// AsignarEfectosAleatoriosAZonas(); // si quieres re-randomizar por combate
+	}
+	
+	public (int playerZones, int aiZones, bool playerWon) GetZoneOutcome()
+	{
+		int p = 0, a = 0;
+		foreach (var z in zones)
+		{
+			int pp = z.GetTotalPower(true);
+			int ap = z.GetTotalPower(false);
+			if (pp > ap) p++;
+			else if (ap > pp) a++;
+		}
+		bool win = (p >= 2 && p > a);
+		return (p, a, win);
 	}
 	
 	// Random zone effects
@@ -169,25 +217,32 @@ public class GameManager : MonoBehaviour
 	// Este método se llama desde TurnManager cuando termina el turno 6
 	public void EvaluateGame()
 	{
-		int playerWins = 0;
-		int aiWins = 0;
+		//int playerWins = 0;
+		//int aiWins = 0;
 		
-		foreach(var zone in zones)
-		{
-			int playerPower = zone.GetTotalPower(true);
-			int aiPower = zone.GetTotalPower(false);
+		//foreach(var zone in zones)
+		//{
+		//	int playerPower = zone.GetTotalPower(true);
+		//	int aiPower = zone.GetTotalPower(false);
 			
-			if (playerPower > aiPower)
-			{
-				playerWins++;
-			}
-			else if (aiPower > playerPower)
-			{
-				aiWins++;
-			}
-		}
+		//	if (playerPower > aiPower)
+		//	{
+		//		playerWins++;
+		//	}
+		//	else if (aiPower > playerPower)
+		//	{
+		//		aiWins++;
+		//	}
+		//}
 		
-		ShowResult(playerWins, aiWins);
+		//ShowResult(playerWins, aiWins);
+		var (pZones, aZones, playerWon) = GetZoneOutcome();
+
+		// Aplica reglas: -1 vida por zona no controlada, apuesta, +100 puntos/ zona ganada
+		PlayerProgress.Instance.ApplyMatchOutcome(pZones, aZones, playerWon);
+
+		// Ya tenías ShowResult(p, a). Manténlo y agrega un botón “Continuar”
+		ShowResult(pZones, aZones); // deja visible resultPanel
 	}
 	
 	public void ShowResult(int playerWins, int aiWins)

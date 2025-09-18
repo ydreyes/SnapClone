@@ -33,4 +33,11 @@ public class TurnManager : MonoBehaviour
 	{
 		UnityEngine.SceneManagement.SceneManager.LoadScene(0);
 	}
+	
+	public void ResetToTurn1()
+	{
+		currentTurn = 1;
+		playerEnergy = 1;
+	}
+
 }

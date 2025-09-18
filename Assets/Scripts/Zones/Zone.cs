@@ -150,5 +150,44 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 			GameManager.Instance.PlayCardFromDrag(droppedCard, this);
 		}
 	}
+	
+	// Devuelve la lista de cartas de la zona según el bando
+	public List<CardInstance> GetCards(bool forPlayer)
+	{
+		return forPlayer ? playerCards : aiCards;
+	}
+
+	// Quita una carta de la zona (listas + UI)
+	public void RemoveCard(CardInstance card)
+	{
+		if (card == null) return;
+
+		// Remover de las colecciones
+		cardsInZone.Remove(card);
+		if (card.isPlayerCard)
+			playerCards.Remove(card);
+		else
+			aiCards.Remove(card);
+
+		// Desparentar por seguridad (evita que quede colgada en la fila)
+		if (card.transform && (card.transform.parent == playerRow || card.transform.parent == aiRow))
+			card.transform.SetParent(null, false);
+
+		// Refrescar poder mostrado
+		UpdatePowerDisplay();
+	}
+
+	// Limpia toda la zona (útil para reiniciar combate/partida)
+	public void ClearAllCards(bool destroyGameObjects = true)
+	{
+		// Copias para no modificar la colección mientras iteramos
+		var all = playerCards.Concat(aiCards).ToList();
+		foreach (var c in all)
+		{
+			RemoveCard(c);
+			if (destroyGameObjects && c) Destroy(c.gameObject);
+		}
+	}
+
 
 }

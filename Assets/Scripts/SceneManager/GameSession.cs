@@ -7,6 +7,7 @@ public class GameSession : MonoBehaviour
 
 	[Header("Selection")]
 	public CharacterData selectedCharacter;
+	public EnemyData selectedEnemy;
 	public CharacterData selectedAI;   // opcional: IA fija o aleatoria
 
 	private void Awake()
@@ -18,7 +19,8 @@ public class GameSession : MonoBehaviour
 
 	public void SelectCharacter(CharacterData c) => selectedCharacter = c;
 	public void SelectAI(CharacterData ai) => selectedAI = ai;
-
+	public void SetEnemy(EnemyData e) => selectedEnemy = e;
+	
 	public void StartGame()
 	{
 		// Si no elegiste IA, elige una distinta al jugador
