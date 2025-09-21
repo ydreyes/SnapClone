@@ -23,17 +23,31 @@ public class GameSession : MonoBehaviour
 	
 	public void StartGame()
 	{
-		// Si no elegiste IA, elige una distinta al jugador
-		if (selectedAI == null)
+		//// Si no elegiste IA, elige una distinta al jugador
+		//if (selectedAI == null)
+		//{
+		//	var all = Resources.LoadAll<CharacterData>("Characters");
+		//	if (all.Length > 0)
+		//	{
+		//		selectedAI = all[Random.Range(0, all.Length)];
+		//		if (selectedCharacter != null && selectedAI == selectedCharacter && all.Length > 1)
+		//			selectedAI = all[(System.Array.IndexOf(all, selectedCharacter) + 1) % all.Length];
+		//	}
+		//}
+		//SceneManager.LoadScene("GameScene"); // Escena principal de la partida
+		
+		
+		selectedAI = null;
+		
+		// Reinicia el progreso al empezar
+		if (PlayerProgress.Instance)
 		{
-			var all = Resources.LoadAll<CharacterData>("Characters");
-			if (all.Length > 0)
-			{
-				selectedAI = all[Random.Range(0, all.Length)];
-				if (selectedCharacter != null && selectedAI == selectedCharacter && all.Length > 1)
-					selectedAI = all[(System.Array.IndexOf(all, selectedCharacter) + 1) % all.Length];
-			}
+			PlayerProgress.Instance.lives = 8;
+			PlayerProgress.Instance.heroPoints = 0;
+			PlayerProgress.Instance.zonesCompletedOnWorld = 0;
 		}
-		SceneManager.LoadScene("GameScene"); // Escena principal de la partida
+		
+		// cargar el mapa mundial en vez del GameScene
+		SceneManager.LoadScene("WorldMapScene");
 	}
 }

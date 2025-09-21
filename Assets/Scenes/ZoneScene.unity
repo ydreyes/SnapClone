@@ -1018,6 +1018,7 @@ MonoBehaviour:
   - {fileID: 1433799056}
   - {fileID: 961464715}
   - {fileID: 725422527}
+  previewPanel: {fileID: 330950632}
   enemyImage: {fileID: 949935915}
   enemyName: {fileID: 1927031307}
   enemyBlurb: {fileID: 1457499618}

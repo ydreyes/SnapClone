@@ -8,6 +8,7 @@ public class ZoneController : MonoBehaviour
 	public Button[] nodeButtons = new Button[7];
 
 	[Header("Preview UI")]
+	public GameObject previewPanel;
 	public Image enemyImage;
 	public TMPro.TextMeshProUGUI enemyName;
 	public TMPro.TextMeshProUGUI enemyBlurb;
@@ -38,14 +39,33 @@ public class ZoneController : MonoBehaviour
 		});
 	}
 
+	//void LoadEnemyPool()
+	//{
+	//	int zoneIndex = PlayerProgress.Instance.currentZoneIndex;
+	//	string path = "Enemies/Zone" + zoneIndex; // Resources/Enemies/ZoneX
+	//	pool = Resources.LoadAll<EnemyData>(path);
+	//	if (pool == null || pool.Length == 0)
+	//		Debug.LogWarning($"No se encontraron EnemyData en Resources/{path}");
+	//}
+	
 	void LoadEnemyPool()
 	{
 		int zoneIndex = PlayerProgress.Instance.currentZoneIndex;
 		string path = "Enemies/Zone" + zoneIndex; // Resources/Enemies/ZoneX
-		pool = Resources.LoadAll<EnemyData>(path);
-		if (pool == null || pool.Length == 0)
-			Debug.LogWarning($"No se encontraron EnemyData en Resources/{path}");
+
+		//EnemyPool poolAsset = Resources.Load<EnemyPool>(path);
+		EnemyPool poolAsset = Resources.Load<EnemyPool>($"Enemies/Zone{zoneIndex}/EnemyPool_Zone{zoneIndex}");
+		if (poolAsset != null && poolAsset.enemies.Length > 0)
+		{
+			pool = poolAsset.enemies;
+		}
+		else
+		{
+			Debug.LogWarning($"No se encontraron EnemyPool en Resources/{path}");
+			pool = new EnemyData[0];
+		}
 	}
+
 
 	void SetupNodes()
 	{
@@ -73,11 +93,18 @@ public class ZoneController : MonoBehaviour
 		// Elige enemigo aleatorio del pool de 5
 		if (pool == null || pool.Length == 0) return;
 		selectedEnemy = pool[Random.Range(0, pool.Length)];
+		
+		Debug.Log($"[ZoneController] Nodo {nodeIndex} seleccionado, enemigo: {selectedEnemy.enemyName}");
 
 		// Muestra preview
 		if (enemyImage) enemyImage.sprite = selectedEnemy.previewArt ? selectedEnemy.previewArt : selectedEnemy.portrait;
 		if (enemyName) enemyName.text = selectedEnemy.enemyName;
 		if (enemyBlurb) enemyBlurb.text = selectedEnemy.blurb;
+		
+		if (previewPanel)
+		{
+			previewPanel.SetActive(true);
+		}
 
 		fightButton.onClick.RemoveAllListeners();
 		fightButton.onClick.AddListener(() => StartFight(nodeIndex));
@@ -86,6 +113,8 @@ public class ZoneController : MonoBehaviour
 
 	void StartFight(int nodeIndex)
 	{
+		Debug.Log($"[ZoneController] StartFight node={nodeIndex}, enemy={selectedEnemy?.enemyName}");
+
 		// Guarda selección y nodo para marcar al regresar
 		GameSession.Instance.SetEnemy(selectedEnemy);
 		PlayerPrefs.SetInt("LastNodeIndex", nodeIndex);
@@ -128,5 +157,7 @@ public class ZoneController : MonoBehaviour
 		if (enemyName) enemyName.text = "";
 		if (enemyBlurb) enemyBlurb.text = "";
 		if (fightButton) fightButton.interactable = false;
+		
+		if (previewPanel) previewPanel.SetActive(false);
 	}
 }
