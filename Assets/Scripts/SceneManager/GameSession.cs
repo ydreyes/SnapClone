@@ -22,21 +22,7 @@ public class GameSession : MonoBehaviour
 	public void SetEnemy(EnemyData e) => selectedEnemy = e;
 	
 	public void StartGame()
-	{
-		//// Si no elegiste IA, elige una distinta al jugador
-		//if (selectedAI == null)
-		//{
-		//	var all = Resources.LoadAll<CharacterData>("Characters");
-		//	if (all.Length > 0)
-		//	{
-		//		selectedAI = all[Random.Range(0, all.Length)];
-		//		if (selectedCharacter != null && selectedAI == selectedCharacter && all.Length > 1)
-		//			selectedAI = all[(System.Array.IndexOf(all, selectedCharacter) + 1) % all.Length];
-		//	}
-		//}
-		//SceneManager.LoadScene("GameScene"); // Escena principal de la partida
-		
-		
+	{		
 		selectedAI = null;
 		
 		// Reinicia el progreso al empezar

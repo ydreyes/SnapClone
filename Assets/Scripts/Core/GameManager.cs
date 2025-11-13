@@ -12,15 +12,25 @@ public class GameManager : MonoBehaviour
 	/// crear preview de carta al tocarla - Listo
 	/// cear escena de menu principal - Listo
 	/// crear escena de seleccion de personaje - Listo
-	/// crear 4 personajes con sus barajas (Basarte en el modo arena)
-	/// crear escena que muestre la ruta a seguir para llegar al jefe
+	/// crear 4 personajes con sus barajas - Listo
+	/// Se debe mostrar la vida y los puntos ganados en la ZoneScene
+	/// Crear save system (para el prototipo usar el de unity pero luego usar el de steam)
+	/// Crear una pantalla de tienda
 	/// crear escena de construccion de baraja
+	/// Correcciones:
+	/// -Se debe mostrar las vidas y los puntos en la selección de zona
+	/// -Se debe traer la baraja del personaje seleccionado en la gameScene
+	/// -Corregir la preview del deck en la pantalla de selección de persona
+	
+	/// NOTA: terminar lo anterior antes de pasar a esta parte
+	/// pulir la demo: agregarle jugo, efectos, canciones, sonidos, etc.
 	/// agregar efectos ON ACTIVATE - La habilidad solo se debe activar una vez
 	/// Agregar hechizos (cartas que desaparecen al ser jugadas)
+	///  Modificar las barajas inciales y agregarles un Héroe Lider.(Basarte en el modo arena)
 	/// que las cartas se juegen al mismo tiempo
 	/// crear efectos de zona - que las zonas se vayan revelando al turno 1 dos y tres
 	/// agregar la prioridad del juego y de las cartas
-	/// pulir la demo: agregarle jugo, efectos, canciones, sonidos, etc.
+	/// Crear un modo landScape.
 	/// </summary>
 	
 	public static GameManager Instance;
@@ -37,6 +47,8 @@ public class GameManager : MonoBehaviour
 	[Header("Resultado")]
 	public GameObject resultPanel;
 	public TextMeshProUGUI resultText;
+	public TextMeshProUGUI resultDetailsText;
+	public Button continueButton;
 	
 	// logica de on reveal
 	private Dictionary<CardInstance, int> delayedEffects = new();
@@ -67,6 +79,7 @@ public class GameManager : MonoBehaviour
 			ai.DrawCard();
 		}
 		
+		if (continueButton) continueButton.gameObject.SetActive(false);
 		UpdateEnergyDisplay();
 		AsignarEfectosAleatoriosAZonas();
 		InitNewMatch();
@@ -77,9 +90,6 @@ public class GameManager : MonoBehaviour
 		// Limpia zonas/manos si reaprovechas la escena
 		foreach (var z in zones)
 		{
-			//foreach (var c in z.playerCards.ToArray()) { z.RemoveCard(c); if (c) Destroy(c.gameObject); }
-			//foreach (var c in z.aiCards.ToArray())     { z.RemoveCard(c); if (c) Destroy(c.gameObject); }
-			//z.UpdatePowerDisplay();
 			z.ClearAllCards(true);
 		}
 
@@ -93,8 +103,6 @@ public class GameManager : MonoBehaviour
 			ai.deck = new System.Collections.Generic.List<CardData>(
 				GameSession.Instance.selectedEnemy.deck.cards
 			);
-			// si tu AI usa thinkDelay u otros parámetros, configúralos aquí
-			// ai.thinkDelay = GameSession.Instance.selectedEnemy.aiThinkDelay;
 		}
 
 		turnManager.ResetToTurn1(); // energía/turno = 1
@@ -102,7 +110,6 @@ public class GameManager : MonoBehaviour
 		for (int i = 0; i < 3; i++) { player.DrawCard(); ai.DrawCard(); }
 
 		UpdateEnergyDisplay();
-		// AsignarEfectosAleatoriosAZonas(); // si quieres re-randomizar por combate
 	}
 	
 	public (int playerZones, int aiZones, bool playerWon) GetZoneOutcome()
@@ -217,50 +224,65 @@ public class GameManager : MonoBehaviour
 	// Este método se llama desde TurnManager cuando termina el turno 6
 	public void EvaluateGame()
 	{
-		//int playerWins = 0;
-		//int aiWins = 0;
 		
-		//foreach(var zone in zones)
-		//{
-		//	int playerPower = zone.GetTotalPower(true);
-		//	int aiPower = zone.GetTotalPower(false);
-			
-		//	if (playerPower > aiPower)
-		//	{
-		//		playerWins++;
-		//	}
-		//	else if (aiPower > playerPower)
-		//	{
-		//		aiWins++;
-		//	}
-		//}
-		
-		//ShowResult(playerWins, aiWins);
+		////ShowResult(playerWins, aiWins);
+		//var (pZones, aZones, playerWon) = GetZoneOutcome();
+
+		//// Aplica reglas: -1 vida por zona no controlada, apuesta, +100 puntos/ zona ganada
+		//PlayerProgress.Instance.ApplyMatchOutcome(pZones, aZones, playerWon);
+
+		//// Ya tenías ShowResult(p, a). Manténlo y agrega un botón “Continuar”
+		//ShowResult(pZones, aZones); // deja visible resultPanel
 		var (pZones, aZones, playerWon) = GetZoneOutcome();
 
-		// Aplica reglas: -1 vida por zona no controlada, apuesta, +100 puntos/ zona ganada
-		PlayerProgress.Instance.ApplyMatchOutcome(pZones, aZones, playerWon);
-
-		// Ya tenías ShowResult(p, a). Manténlo y agrega un botón “Continuar”
-		ShowResult(pZones, aZones); // deja visible resultPanel
+		// Mostramos resultado visual (vidas y puntos proyectados)
+		ShowResult(pZones, aZones, playerWon);
 	}
 	
-	public void ShowResult(int playerWins, int aiWins)
+	public void ShowResult(int playerWins, int aiWins, bool playerWon)
 	{
 		resultPanel.SetActive(true);
 		
-		if (playerWins >= 2) {
-			resultText.text = "¡Victoria!";
+		// Mensaje principal
+		if (playerWins >= 2) resultText.text = "¡Victoria!";
+		else if (aiWins >= 2) resultText.text = "Derrota...";
+		else resultText.text = "Empate";
+		
+		// Calcular vidas y puntos *antes* de aplicar
+		int lostZones = Mathf.Max(0, 3 - Mathf.Clamp(playerWins, 0, 3));
+		int projectedLives = PlayerProgress.Instance.lives - lostZones;
+		int projectedHero = PlayerProgress.Instance.heroPoints + (playerWins * 100);
+		
+		// Si había apuesta activa, aplica visualmente el resultado pero sin aplicarlo aún
+		if (PlayerProgress.Instance.betActive)
+		{
+			projectedLives += playerWon ? 8 : -4;
 		}
-		else if (aiWins >= 2){
-			resultText.text = "Derrota...";
+
+		// Actualizar texto adicional
+		if (resultDetailsText)
+		{
+			resultDetailsText.text =
+				$"Vidas restantes: {projectedLives}\n" +
+				$"Puntos de Héroe: {projectedHero}";
 		}
-		else {
-			resultText.text = "Empate";
+
+		// Configurar botón Continuar
+		if (continueButton)
+		{
+			continueButton.gameObject.SetActive(true);
+			continueButton.onClick.RemoveAllListeners();
+			continueButton.onClick.AddListener(() =>
+			{
+				// Aplicar reglas y volver a ZoneScene
+				PlayerProgress.Instance.ApplyMatchOutcome(playerWins, aiWins, playerWon);
+			});
 		}
 
 		Debug.Log($"Resultado: Jugador {playerWins} zonas vs IA {aiWins} zonas");
+		// progresión después de mostrar resultado.
 	}
+	
 	
 	public void RegisterDelayedEffect(CardInstance card, int bonus)
 	{

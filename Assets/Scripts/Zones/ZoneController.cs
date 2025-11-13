@@ -38,15 +38,6 @@ public class ZoneController : MonoBehaviour
 			SceneManager.LoadScene("WorldMapScene");
 		});
 	}
-
-	//void LoadEnemyPool()
-	//{
-	//	int zoneIndex = PlayerProgress.Instance.currentZoneIndex;
-	//	string path = "Enemies/Zone" + zoneIndex; // Resources/Enemies/ZoneX
-	//	pool = Resources.LoadAll<EnemyData>(path);
-	//	if (pool == null || pool.Length == 0)
-	//		Debug.LogWarning($"No se encontraron EnemyData en Resources/{path}");
-	//}
 	
 	void LoadEnemyPool()
 	{

@@ -63,7 +63,7 @@ public class PlayerProgress : MonoBehaviour
 		// 1) Vidas por zonas no dominadas
 		int zonesLost = Mathf.Max(0, 3 - Mathf.Clamp(playerZones, 0, 3));
 		lives -= zonesLost;
-
+		
 		// 2) Resolución de apuesta (si estaba activa)
 		if (betActive)
 		{
@@ -72,10 +72,23 @@ public class PlayerProgress : MonoBehaviour
 		}
 
 		// 3) Puntos de héroe (100 por zona ganada)
-		heroPoints += Mathf.Clamp(playerZones, 0, 3) * 100;
+		heroPoints += playerZones * 100;
+		
+		if (lives <= 0)
+		{
+			UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+			Debug.Log("[PlayerProgress] Game Over: sin vidas");
+		}
+		else
+		{
+			// Guardar bandera para ZoneScene
+			PlayerPrefs.SetInt("PendingMark", 1);
+			UnityEngine.SceneManagement.SceneManager.LoadScene("ZoneScene");
+		}
 
 		// Clamp de seguridad
 		if (lives < 0) lives = 0;
+		Debug.Log($"[PlayerProgress] Resultado aplicado. Vidas: {lives}, Héroe: {heroPoints}");
 	}
 
 	public bool IsGameOver()
