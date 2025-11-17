@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class PlayerProgress : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class PlayerProgress : MonoBehaviour
 	[Header("Estado de la zona actual (ZoneScene)")]
 	public int currentZoneIndex = 0;        // 0..2
 	public bool[] nodesCompleted = new bool[7]; // progreso de los 7 nodos de la zona
+	
+	[Header("Colección de cartas del jugador")]
+	public List<CardData> ownedCards = new List<CardData>();
 
 	[Header("Puntuación del jugador")]
 	public int lives = 8;                   // puntos de vida iniciales
@@ -89,6 +93,17 @@ public class PlayerProgress : MonoBehaviour
 		// Clamp de seguridad
 		if (lives < 0) lives = 0;
 		Debug.Log($"[PlayerProgress] Resultado aplicado. Vidas: {lives}, Héroe: {heroPoints}");
+	}
+	
+	public void AddCardToCollection(CardData card)
+	{
+		if (card == null) 
+			return;
+			
+		if (!ownedCards.Contains(card))
+		{
+			ownedCards.Add(card);
+		}
 	}
 
 	public bool IsGameOver()

@@ -16,11 +16,15 @@ public class GameManager : MonoBehaviour
 	/// Se debe mostrar la vida y los puntos ganados en la ZoneScene
 	/// Crear save system (para el prototipo usar el de unity pero luego usar el de steam)
 	/// Crear una pantalla de tienda
+	/// Crear una pantalla de listado de todas las cartas adquiridas.
+	/// Crear una pantalla de creación de barajas
 	/// crear escena de construccion de baraja
+	/// Crear una pantalla de progreso.
 	/// Correcciones:
 	/// -Se debe mostrar las vidas y los puntos en la selección de zona
 	/// -Se debe traer la baraja del personaje seleccionado en la gameScene
 	/// -Corregir la preview del deck en la pantalla de selección de persona
+	/// -corregir el bug de que las cartas regresen a su posicion original si no pueden jugarse
 	
 	/// NOTA: terminar lo anterior antes de pasar a esta parte
 	/// pulir la demo: agregarle jugo, efectos, canciones, sonidos, etc.
@@ -224,17 +228,7 @@ public class GameManager : MonoBehaviour
 	// Este método se llama desde TurnManager cuando termina el turno 6
 	public void EvaluateGame()
 	{
-		
-		////ShowResult(playerWins, aiWins);
-		//var (pZones, aZones, playerWon) = GetZoneOutcome();
-
-		//// Aplica reglas: -1 vida por zona no controlada, apuesta, +100 puntos/ zona ganada
-		//PlayerProgress.Instance.ApplyMatchOutcome(pZones, aZones, playerWon);
-
-		//// Ya tenías ShowResult(p, a). Manténlo y agrega un botón “Continuar”
-		//ShowResult(pZones, aZones); // deja visible resultPanel
 		var (pZones, aZones, playerWon) = GetZoneOutcome();
-
 		// Mostramos resultado visual (vidas y puntos proyectados)
 		ShowResult(pZones, aZones, playerWon);
 	}
@@ -247,18 +241,15 @@ public class GameManager : MonoBehaviour
 		if (playerWins >= 2) resultText.text = "¡Victoria!";
 		else if (aiWins >= 2) resultText.text = "Derrota...";
 		else resultText.text = "Empate";
-		
 		// Calcular vidas y puntos *antes* de aplicar
 		int lostZones = Mathf.Max(0, 3 - Mathf.Clamp(playerWins, 0, 3));
 		int projectedLives = PlayerProgress.Instance.lives - lostZones;
 		int projectedHero = PlayerProgress.Instance.heroPoints + (playerWins * 100);
-		
 		// Si había apuesta activa, aplica visualmente el resultado pero sin aplicarlo aún
 		if (PlayerProgress.Instance.betActive)
 		{
 			projectedLives += playerWon ? 8 : -4;
 		}
-
 		// Actualizar texto adicional
 		if (resultDetailsText)
 		{
@@ -266,7 +257,6 @@ public class GameManager : MonoBehaviour
 				$"Vidas restantes: {projectedLives}\n" +
 				$"Puntos de Héroe: {projectedHero}";
 		}
-
 		// Configurar botón Continuar
 		if (continueButton)
 		{
@@ -278,7 +268,6 @@ public class GameManager : MonoBehaviour
 				PlayerProgress.Instance.ApplyMatchOutcome(playerWins, aiWins, playerWon);
 			});
 		}
-
 		Debug.Log($"Resultado: Jugador {playerWins} zonas vs IA {aiWins} zonas");
 		// progresión después de mostrar resultado.
 	}

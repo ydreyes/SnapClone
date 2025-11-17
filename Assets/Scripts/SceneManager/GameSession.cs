@@ -9,6 +9,7 @@ public class GameSession : MonoBehaviour
 	public CharacterData selectedCharacter;
 	public EnemyData selectedEnemy;
 	public CharacterData selectedAI;   // opcional: IA fija o aleatoria
+	public DeckData deckBeingEdited;
 
 	private void Awake()
 	{
