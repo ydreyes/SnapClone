@@ -897,6 +897,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1d797646372e9743b128ad8d463da5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  charactersContainer: {fileID: 794692585}
+  characterButtonPrefab: {fileID: 4099833585784793706, guid: 57c9bdd83a2da464b8dbdce6f1604d06, type: 3}
+  confirmButton: {fileID: 137436031}
+  backButton: {fileID: 315965958}
 --- !u!4 &908684365
 Transform:
   m_ObjectHideFlags: 0

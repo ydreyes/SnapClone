@@ -13,12 +13,12 @@ public class GameManager : MonoBehaviour
 	/// cear escena de menu principal - Listo
 	/// crear escena de seleccion de personaje - Listo
 	/// crear 4 personajes con sus barajas - Listo
-	/// Se debe mostrar la vida y los puntos ganados en la ZoneScene
+	/// Se debe mostrar la vida y los puntos ganados en la ZoneScene - Listo
 	/// Crear save system (para el prototipo usar el de unity pero luego usar el de steam)
-	/// Crear una pantalla de tienda
-	/// Crear una pantalla de listado de todas las cartas adquiridas.
-	/// Crear una pantalla de creación de barajas
-	/// crear escena de construccion de baraja
+	/// Crear una pantalla de tienda - Listo
+	/// Crear una pantalla de listado de todas las cartas adquiridas. - Listo
+	/// Crear una pantalla de creación de barajas - Listo
+	/// crear escena de construccion de baraja - Listo
 	/// Crear una pantalla de progreso.
 	/// Correcciones:
 	/// -Se debe mostrar las vidas y los puntos en la selección de zona
