@@ -19,7 +19,8 @@ public class GameManager : MonoBehaviour
 	/// Crear una pantalla de listado de todas las cartas adquiridas. - Listo
 	/// Crear una pantalla de creación de barajas - Listo
 	/// crear escena de construccion de baraja - Listo
-	/// Crear una pantalla de progreso.
+	/// Crear una pantalla de progreso. - En proceso.
+	/// Cambiar todo a resolución para PC.
 	/// Correcciones:
 	/// -Se debe mostrar las vidas y los puntos en la selección de zona
 	/// -Se debe traer la baraja del personaje seleccionado en la gameScene
@@ -31,6 +32,7 @@ public class GameManager : MonoBehaviour
 	/// agregar efectos ON ACTIVATE - La habilidad solo se debe activar una vez
 	/// Agregar hechizos (cartas que desaparecen al ser jugadas)
 	///  Modificar las barajas inciales y agregarles un Héroe Lider.(Basarte en el modo arena)
+	/// Agregar el jefe final (galactus)
 	/// que las cartas se juegen al mismo tiempo
 	/// crear efectos de zona - que las zonas se vayan revelando al turno 1 dos y tres
 	/// agregar la prioridad del juego y de las cartas
