@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d7b146641c71b149868352a85f9c114, type: 3}
+  m_Name: reward16
+  m_EditorClassIdentifier: 
+  type: 0
+  icon: {fileID: 21300000, guid: e879af6e40e6a4fe9b86a683ad1c9a0e, type: 3}
+  rewardName: reward Test
+  amount: 4
+  specificCard: {fileID: 11400000, guid: e23f0fc44d0789a42b934a8a6e2bb630, type: 2}
+  giveRandomCard: 0
+  costToUnlock: 4

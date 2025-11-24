@@ -14,6 +14,7 @@ public class PlayerProgress : MonoBehaviour
 	
 	[Header("Colección de cartas del jugador")]
 	public List<CardData> ownedCards = new List<CardData>();
+	public List<int> claimedRewards = new List<int>();
 
 	[Header("Puntuación del jugador")]
 	public int lives = 8;                   // puntos de vida iniciales

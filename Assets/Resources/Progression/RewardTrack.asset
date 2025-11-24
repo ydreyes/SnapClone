@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9bbf87bb688731439cab7eace5b99eb, type: 3}
+  m_Name: RewardTrack
+  m_EditorClassIdentifier: 
+  trackRewards:
+  - {fileID: 11400000, guid: 946725fe28a82cc4fa2b3c3ef444505e, type: 2}
+  - {fileID: 11400000, guid: ff4228301c80cbe46804c092493e616e, type: 2}
+  - {fileID: 11400000, guid: f83f1478407316f4880beafaff5fb292, type: 2}
+  - {fileID: 11400000, guid: 34b4243e4d4bacd4585e9bbd109ca342, type: 2}

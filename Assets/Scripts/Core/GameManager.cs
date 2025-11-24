@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -19,20 +20,21 @@ public class GameManager : MonoBehaviour
 	/// Crear una pantalla de listado de todas las cartas adquiridas. - Listo
 	/// Crear una pantalla de creación de barajas - Listo
 	/// crear escena de construccion de baraja - Listo
-	/// Crear una pantalla de progreso. - En proceso.
-	/// Cambiar todo a resolución para PC.
+	/// Cambiar todo a resolución para PC. - Listo
+	/// Crear una pantalla de progreso. - Listo.
+	///  Modificar las barajas inciales y agregarles un Héroe Lider.(Basarte en el modo arena)
+	/// Agregar el jefe final (galactus)
 	/// Correcciones:
 	/// -Se debe mostrar las vidas y los puntos en la selección de zona
 	/// -Se debe traer la baraja del personaje seleccionado en la gameScene
 	/// -Corregir la preview del deck en la pantalla de selección de persona
 	/// -corregir el bug de que las cartas regresen a su posicion original si no pueden jugarse
+	/// Probar todo el flujo de inicio a Fin.
 	
 	/// NOTA: terminar lo anterior antes de pasar a esta parte
 	/// pulir la demo: agregarle jugo, efectos, canciones, sonidos, etc.
 	/// agregar efectos ON ACTIVATE - La habilidad solo se debe activar una vez
 	/// Agregar hechizos (cartas que desaparecen al ser jugadas)
-	///  Modificar las barajas inciales y agregarles un Héroe Lider.(Basarte en el modo arena)
-	/// Agregar el jefe final (galactus)
 	/// que las cartas se juegen al mismo tiempo
 	/// crear efectos de zona - que las zonas se vayan revelando al turno 1 dos y tres
 	/// agregar la prioridad del juego y de las cartas
@@ -268,6 +270,8 @@ public class GameManager : MonoBehaviour
 			{
 				// Aplicar reglas y volver a ZoneScene
 				PlayerProgress.Instance.ApplyMatchOutcome(playerWins, aiWins, playerWon);
+				//Mostrar progresión
+				SceneManager.LoadScene("CollectionTrackScene");
 			});
 		}
 		Debug.Log($"Resultado: Jugador {playerWins} zonas vs IA {aiWins} zonas");
