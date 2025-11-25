@@ -20,6 +20,10 @@ public class PlayerProgress : MonoBehaviour
 	public int lives = 8;                   // puntos de vida iniciales
 	public int heroPoints = 0;              // puntos de héroe (100 por zona ganada)
 	public bool betActive = false;          // si hay una apuesta activa para el PRÓXIMO combate
+	
+	[Header("Información del jefe Final")]
+	public bool finalBossUnlocked = false;
+	public bool finalBossDefeated = false;
 
 	private void Awake()
 	{
@@ -89,6 +93,14 @@ public class PlayerProgress : MonoBehaviour
 			// Guardar bandera para ZoneScene
 			PlayerPrefs.SetInt("PendingMark", 1);
 			UnityEngine.SceneManagement.SceneManager.LoadScene("ZoneScene");
+		}
+		
+		// Si estamos en el jefe final
+		if (currentZoneIndex == 3)
+		{
+			finalBossDefeated = playerWon;
+			UnityEngine.SceneManagement.SceneManager.LoadScene("GameCompletedScene");
+			return;
 		}
 
 		// Clamp de seguridad

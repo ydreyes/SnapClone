@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
 	/// crear escena de construccion de baraja - Listo
 	/// Cambiar todo a resolución para PC. - Listo
 	/// Crear una pantalla de progreso. - Listo.
+	/// Crear todos los efectos de las cartas Series 3.
+	/// Crear los efectos de zonas de series 3.
 	///  Modificar las barajas inciales y agregarles un Héroe Lider.(Basarte en el modo arena)
 	/// Agregar el jefe final (galactus)
 	/// Correcciones:
@@ -29,6 +31,7 @@ public class GameManager : MonoBehaviour
 	/// -Se debe traer la baraja del personaje seleccionado en la gameScene
 	/// -Corregir la preview del deck en la pantalla de selección de persona
 	/// -corregir el bug de que las cartas regresen a su posicion original si no pueden jugarse
+	/// Corregir distribucion y truncado de textos.
 	/// Probar todo el flujo de inicio a Fin.
 	
 	/// NOTA: terminar lo anterior antes de pasar a esta parte
