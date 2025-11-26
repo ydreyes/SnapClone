@@ -130,8 +130,8 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	
 	public void UpdatePowerDisplay()
 	{
-		playerPowerText.text = $"Jugador: {GetTotalPower(true)}";
-		aiPowerText.text = $"IA: {GetTotalPower(false)}";		
+		playerPowerText.text = $"{GetTotalPower(true)}";
+		aiPowerText.text = $"{GetTotalPower(false)}";
 	}
 	
 	public void OnPointerClick(PointerEventData eventData)

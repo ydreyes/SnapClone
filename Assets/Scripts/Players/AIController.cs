@@ -53,7 +53,9 @@ public class AIController : MonoBehaviour
 				GameObject cardGO = Instantiate(cardPrefab);
 				CardInstance instance = cardGO.GetComponent<CardInstance>();
 				instance.data = card;
+				instance.currentPower = card.power;
 				instance.isPlayerCard = false;
+				instance.GetComponent<CardView>().SetUp(card); // inicializar visuales
 
 				// Elegir zona aleatoria
 				int zoneIndex = Random.Range(0, GameManager.Instance.zones.Count);

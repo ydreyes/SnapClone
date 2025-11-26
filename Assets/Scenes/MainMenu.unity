@@ -589,7 +589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playButton: {fileID: 1279158211}
-  DeckButton: {fileID: 0}
+  DeckButton: {fileID: 2015809385}
   shopButton: {fileID: 479552083}
 --- !u!4 &1041274829
 Transform:

@@ -7,43 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-	/// <summary>
-	/// pediente:
-	/// usar drag and drop para jugar las cartas - Listo
-	/// crear preview de carta al tocarla - Listo
-	/// cear escena de menu principal - Listo
-	/// crear escena de seleccion de personaje - Listo
-	/// crear 4 personajes con sus barajas - Listo
-	/// Se debe mostrar la vida y los puntos ganados en la ZoneScene - Listo
-	/// Crear save system (para el prototipo usar el de unity pero luego usar el de steam)
-	/// Crear una pantalla de tienda - Listo
-	/// Crear una pantalla de listado de todas las cartas adquiridas. - Listo
-	/// Crear una pantalla de creación de barajas - Listo
-	/// crear escena de construccion de baraja - Listo
-	/// Cambiar todo a resolución para PC. - Listo
-	/// Crear una pantalla de progreso. - Listo.
-	/// Crear todos los efectos de las cartas Series 3.
-	/// Crear los efectos de zonas de series 3.
-	///  Modificar las barajas inciales y agregarles un Héroe Lider.(Basarte en el modo arena)
-	/// Agregar el jefe final (galactus)
-	/// Correcciones:
-	/// -Se debe mostrar las vidas y los puntos en la selección de zona
-	/// -Se debe traer la baraja del personaje seleccionado en la gameScene
-	/// -Corregir la preview del deck en la pantalla de selección de persona
-	/// -corregir el bug de que las cartas regresen a su posicion original si no pueden jugarse
-	/// Corregir distribucion y truncado de textos.
-	/// Probar todo el flujo de inicio a Fin.
-	
-	/// NOTA: terminar lo anterior antes de pasar a esta parte
-	/// pulir la demo: agregarle jugo, efectos, canciones, sonidos, etc.
-	/// agregar efectos ON ACTIVATE - La habilidad solo se debe activar una vez
-	/// Agregar hechizos (cartas que desaparecen al ser jugadas)
-	/// que las cartas se juegen al mismo tiempo
-	/// crear efectos de zona - que las zonas se vayan revelando al turno 1 dos y tres
-	/// agregar la prioridad del juego y de las cartas
-	/// Crear un modo landScape.
-	/// </summary>
-	
 	public static GameManager Instance;
 
 	public PlayerController player;
@@ -81,14 +44,14 @@ public class GameManager : MonoBehaviour
 
 	void Start()
 	{
-		player.ShuffleDeck();
-		ai.ShuffleDeck();
+		//player.ShuffleDeck();
+		//ai.ShuffleDeck();
 
-		for (int i = 0; i < 3; i++)
-		{
-			player.DrawCard();
-			ai.DrawCard();
-		}
+		//for (int i = 0; i < 3; i++)
+		//{
+		//	player.DrawCard();
+		//	ai.DrawCard();
+		//}
 		
 		if (continueButton) continueButton.gameObject.SetActive(false);
 		UpdateEnergyDisplay();
@@ -133,7 +96,14 @@ public class GameManager : MonoBehaviour
 			if (pp > ap) p++;
 			else if (ap > pp) a++;
 		}
+		
 		bool win = (p >= 2 && p > a);
+		
+		foreach (var z in zones)
+		{
+			Debug.Log($"Zona {z.name} -> Player: {z.GetTotalPower(true)}, IA: {z.GetTotalPower(false)}");
+		}
+
 		return (p, a, win);
 	}
 	
@@ -229,7 +199,7 @@ public class GameManager : MonoBehaviour
 	
 	public void UpdateEnergyDisplay()
 	{
-		energyText.text =  $"Energía: {turnManager.playerEnergy}";
+		energyText.text =  $"{turnManager.playerEnergy}";
 	}
 	
 	// Este método se llama desde TurnManager cuando termina el turno 6
@@ -269,12 +239,12 @@ public class GameManager : MonoBehaviour
 		{
 			continueButton.gameObject.SetActive(true);
 			continueButton.onClick.RemoveAllListeners();
-			continueButton.onClick.AddListener(() =>
-			{
-				// Aplicar reglas y volver a ZoneScene
-				PlayerProgress.Instance.ApplyMatchOutcome(playerWins, aiWins, playerWon);
-				//Mostrar progresión
-				SceneManager.LoadScene("CollectionTrackScene");
+
+			continueButton.onClick.AddListener(() => {
+			    PlayerProgress.Instance.ApplyMatchOutcome(playerWins, aiWins, playerWon);
+			    PlayerPrefs.SetInt("PendingMark", 1);
+			    // Volver a la escena de nodos
+			    SceneManager.LoadScene("ZoneScene");
 			});
 		}
 		Debug.Log($"Resultado: Jugador {playerWins} zonas vs IA {aiWins} zonas");

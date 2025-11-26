@@ -28,12 +28,6 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		rectTransform = GetComponent<RectTransform>();
 	}
 
-	protected void Start()
-	{
-		currentPower = data.power;
-		GetComponent<CardView>().SetUp(data);
-	}
-	
 	public void OnBeginDrag(PointerEventData eventData)
 	{
 		if (!isPlayerCard) 

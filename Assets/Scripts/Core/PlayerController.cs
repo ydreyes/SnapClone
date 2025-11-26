@@ -40,12 +40,13 @@ public class PlayerController : MonoBehaviour
 
 	void InstantiateCard(CardData cardData)
 	{
-		Debug.Log($"Instanciando carta: {cardData.cardName}");
-		Debug.Log($"cardPrefab: {cardPrefab}, handArea: {handArea}");
-		
 		GameObject cardGO = Instantiate(cardPrefab, handArea);
 		CardInstance instance = cardGO.GetComponent<CardInstance>();
+		
 		instance.data = cardData;
+		instance.currentPower = cardData.power;
 		instance.isPlayerCard = true;
+		
+		instance.GetComponent<CardView>().SetUp(cardData); // inicializar visuales
 	}
 }
