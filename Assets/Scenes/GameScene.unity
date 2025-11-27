@@ -2829,7 +2829,7 @@ MonoBehaviour:
   resultPanel: {fileID: 386568872}
   resultText: {fileID: 1469953321}
   resultDetailsText: {fileID: 0}
-  continueButton: {fileID: 0}
+  continueButton: {fileID: 1047895399}
   zonaEffectPrefabs:
   - {fileID: 1805918374221012400, guid: ad5682180dfde2b4898b5db070ab377c, type: 3}
   - {fileID: 7503490079841533987, guid: 64d152c498db84b4d92d052c1aebbc89, type: 3}
@@ -3093,19 +3093,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1047895400}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 849568950}
-        m_TargetAssemblyTypeName: TurnManager, Assembly-CSharp
-        m_MethodName: RestartGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1047895400
 MonoBehaviour:
   m_ObjectHideFlags: 0
