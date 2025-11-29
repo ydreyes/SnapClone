@@ -7,6 +7,17 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+	/// <summary>
+	/// De jueves a domingo, corregir todo el flujo desde el menú hasta el jefe final
+	/// -Corregir los efectos de zona (removidos de Momento)
+	/// -Corregir el flujo al seleccionar el nivel y como ganar más vidas, cuando se gana 4 veces ya se puede retirar a la siguiente zona y no puede regresar a la anterior.
+	/// En el Game Scene, debe haber un número indicando las vidas, 2 y un botón que permita apostarlas para que se dubpliquen a 4 y si la IA apuesta, deben ganarse 8.
+	/// -corregir los efectos de cartas (remover para pruebas)
+	/// -Agregar las cartas (las starter y las starter para enemigos)
+	/// siguiente semana, corregir todo el flujo relacionado al shop
+	/// diciembre, corregir todo lo relacionado al deckbuilding
+	/// resto del año, seguir el trello.
+	/// </summary>
 	public static GameManager Instance;
 
 	public PlayerController player;
@@ -43,17 +54,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	void Start()
-	{
-		//player.ShuffleDeck();
-		//ai.ShuffleDeck();
-
-		//for (int i = 0; i < 3; i++)
-		//{
-		//	player.DrawCard();
-		//	ai.DrawCard();
-		//}
-		
+	{	
 		if (continueButton) continueButton.gameObject.SetActive(false);
+		
 		UpdateEnergyDisplay();
 		AsignarEfectosAleatoriosAZonas();
 		InitNewMatch();
@@ -98,12 +101,6 @@ public class GameManager : MonoBehaviour
 		}
 		
 		bool win = (p >= 2 && p > a);
-		
-		foreach (var z in zones)
-		{
-			Debug.Log($"Zona {z.name} -> Player: {z.GetTotalPower(true)}, IA: {z.GetTotalPower(false)}");
-		}
-
 		return (p, a, win);
 	}
 	
@@ -145,7 +142,6 @@ public class GameManager : MonoBehaviour
 	public void SelectCardToPlay(CardInstance card)
 	{
 		selectedCard = card;
-		Debug.Log($"Carta seleccionada: {card.data.cardName}. Elige zona.");
 	}
 	
 	public void PlaySelectedCardInZone(Zone zone)

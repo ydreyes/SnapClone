@@ -16,16 +16,16 @@ public class ZoneWeakenAllCards : ZoneEffect
 	public override void OnTurnEnd(Zone zone)
 	{	
 		// reduce poder al jugador
-		foreach (var card in zone.playerCards)
-		{
-			card.currentPower -= amount;
-		}
+		//foreach (var card in zone.playerCards)
+		//{
+		//	card.currentPower -= amount;
+		//}
 		
-		// reduce poder al IA
-		foreach (var card in zone.aiCards)
-		{
-			card.currentPower -= amount;
-		}
+		//// reduce poder al IA
+		//foreach (var card in zone.aiCards)
+		//{
+		//	card.currentPower -= amount;
+		//}
 		
 		zone.UpdatePowerDisplay();
 	}

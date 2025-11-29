@@ -15,6 +15,6 @@ public class BonusPowerZoneEffect : ZoneEffect
 
 	public override void OnCardPlayed(CardInstance card, Zone zone)
 	{
-		card.currentPower += bonusAmount;
+		//card.currentPower += bonusAmount;
 	}
 }

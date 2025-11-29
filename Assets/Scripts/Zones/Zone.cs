@@ -22,6 +22,7 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	[Header("UI")]
 	public Button infoButton;
 	public GameObject effectInfoPanel;
+	public Image effectImage;
 	public TextMeshProUGUI effectInfoText;
 	
 	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
@@ -188,6 +189,5 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 			if (destroyGameObjects && c) Destroy(c.gameObject);
 		}
 	}
-
 
 }

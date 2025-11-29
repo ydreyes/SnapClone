@@ -15,15 +15,15 @@ public class ZoneBuffAllCards : ZoneEffect
 	
 	public override void OnTurnEnd(Zone zone)
 	{
-		foreach(var card in zone.playerCards)
-		{
-			card.currentPower += amount;
-		}
+		//foreach(var card in zone.playerCards)
+		//{
+		//	card.currentPower += amount;
+		//}
 		
-		foreach(var card in zone.aiCards)
-		{
-			card.currentPower += amount;
-		}
+		//foreach(var card in zone.aiCards)
+		//{
+		//	card.currentPower += amount;
+		//}
 		
 		zone.UpdatePowerDisplay();
 	}
