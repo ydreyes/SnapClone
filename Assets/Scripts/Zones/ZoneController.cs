@@ -18,6 +18,11 @@ public class ZoneController : MonoBehaviour
 	private EnemyData[] pool;     // 5 enemigos de la zona
 	private EnemyData selectedEnemy;
 	private int availableCount = 3; // 3 al inicio
+	
+	[Header("Exit Decision UI")]
+	public GameObject exitDecisionPanel;
+	public Button continuePlayingButton;
+	public Button exitToMapButton;
 
 	void Start()
 	{
@@ -125,6 +130,13 @@ public class ZoneController : MonoBehaviour
 		// contar completados
 		int done = 0;
 		foreach (bool b in pp.nodesCompleted) if (b) done++;
+		
+		//completó los 4?
+		if (done ==4)
+		{
+			ShowExitDecisionPanel();
+			return;
+		}
 
 		// ¿completó los 7?
 		if (done >= 7)
@@ -140,6 +152,28 @@ public class ZoneController : MonoBehaviour
 
 		// refrescar la escena para actualizar botones
 		SceneManager.LoadScene("ZoneScene");
+	}
+	
+	void ShowExitDecisionPanel()
+	{
+		if (exitDecisionPanel != null)
+		{
+			exitDecisionPanel.SetActive(true);
+
+			continuePlayingButton.onClick.RemoveAllListeners();
+			continuePlayingButton.onClick.AddListener(() =>
+			{
+				// Seguir jugando → recargar escena con nodos actualizados
+				SceneManager.LoadScene("ZoneScene");
+			});
+
+			exitToMapButton.onClick.RemoveAllListeners();
+			exitToMapButton.onClick.AddListener(() =>
+			{
+				// Salir al mapa mundial
+				SceneManager.LoadScene("WorldMapScene");
+			});
+		}
 	}
 
 	void ClearPreview()
