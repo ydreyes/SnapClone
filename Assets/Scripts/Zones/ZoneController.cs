@@ -168,10 +168,13 @@ public class ZoneController : MonoBehaviour
 			});
 
 			exitToMapButton.onClick.RemoveAllListeners();
+			
 			exitToMapButton.onClick.AddListener(() =>
 			{
-				// Salir al mapa mundial
-				SceneManager.LoadScene("WorldMapScene");
+			    var pp = PlayerProgress.Instance;
+			    // Al salir con 4 nodos, se marca como "zona completada parcialmente"
+			    pp.zonesCompletedOnWorld = Mathf.Max(pp.zonesCompletedOnWorld, pp.currentZoneIndex + 1);
+			    SceneManager.LoadScene("WorldMapScene");
 			});
 		}
 	}
