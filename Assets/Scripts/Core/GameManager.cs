@@ -10,8 +10,8 @@ public class GameManager : MonoBehaviour
 	/// <summary>
 	/// De jueves a domingo, corregir todo el flujo desde el menú hasta el jefe final
 	/// -Corregir los efectos de zona (removidos de Momento)
-	/// -Corregir el flujo al seleccionar el nivel y como ganar más vidas, cuando se gana 4 veces ya se puede retirar a la siguiente zona y no puede regresar a la anterior.
-	/// En el Game Scene, debe haber un número indicando las vidas, 2 y un botón que permita apostarlas para que se dubpliquen a 4 y si la IA apuesta, deben ganarse 8.
+	/// -En el GameScene, debe haber un número indicando las vidas, 2 y un botón que permita apostarlas para que se dubpliquen a 4 y si la IA apuesta, deben ganarse 8.
+	/// Revisar el flujo hasta el jefe final.
 	/// -corregir los efectos de cartas (remover para pruebas)
 	/// -Agregar las cartas (las starter y las starter para enemigos)
 	/// siguiente semana, corregir todo el flujo relacionado al shop
@@ -42,6 +42,10 @@ public class GameManager : MonoBehaviour
 	[Header("Efectos posibles para zonas")]
 	public List<ZoneEffect> zonaEffectPrefabs;
 	
+	[Header("Apuestas (SNAP)")]
+	public Button betButton;
+	public TextMeshProUGUI betText;
+	
 	//bandera para la preview de cartas
 	private bool isDraggingCard = false;
 	public void SetDragging(bool value) => isDraggingCard = value;
@@ -60,6 +64,7 @@ public class GameManager : MonoBehaviour
 		UpdateEnergyDisplay();
 		AsignarEfectosAleatoriosAZonas();
 		InitNewMatch();
+		InitBetButton();
 	}
 	
 	public void InitNewMatch()
@@ -87,6 +92,35 @@ public class GameManager : MonoBehaviour
 		for (int i = 0; i < 3; i++) { player.DrawCard(); ai.DrawCard(); }
 
 		UpdateEnergyDisplay();
+	}
+	
+	void InitBetButton()
+	{
+		if (betButton == null) return;
+
+		betButton.onClick.RemoveAllListeners();
+		betButton.onClick.AddListener(() =>
+		{
+			if (PlayerProgress.Instance.betActive)
+			{
+				Debug.Log("La apuesta ya está activa.");
+				return;
+			}
+
+			bool success = PlayerProgress.Instance.TryPlaceBet();
+			if (!success)
+			{
+				Debug.Log("No tienes suficientes vidas para apostar.");
+				return;
+			}
+
+			Debug.Log("APUESTA ACTIVADA POR EL JUGADOR");
+        
+			if (betText)
+				betText.text = "x4";
+
+			PlayerProgress.Instance.betActive = true;
+		});
 	}
 	
 	public (int playerZones, int aiZones, bool playerWon) GetZoneOutcome()
@@ -191,6 +225,8 @@ public class GameManager : MonoBehaviour
 		player.DrawCard();
 		ai.DrawCard();
 		UpdateEnergyDisplay();
+		// IA intenta apostar cada turno
+		ai.TryRandomBet(turnManager.currentTurn);
 	}
 	
 	public void UpdateEnergyDisplay()
@@ -243,7 +279,6 @@ public class GameManager : MonoBehaviour
 			    SceneManager.LoadScene("ZoneScene");
 			});
 		}
-		Debug.Log($"Resultado: Jugador {playerWins} zonas vs IA {aiWins} zonas");
 		// progresión después de mostrar resultado.
 	}
 	

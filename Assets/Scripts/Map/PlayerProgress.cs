@@ -74,9 +74,34 @@ public class PlayerProgress : MonoBehaviour
 		lives -= zonesLost;
 		
 		// 2) Resolución de apuesta (si estaba activa)
-		if (betActive)
+		bool aiBet = GameManager.Instance.ai.aiBet;
+		if (betActive || aiBet)
 		{
-			lives += playerWon ? 8 : -4;
+			// ambos apostaron -> premio x8
+			if (betActive && aiBet)
+			{
+				lives += playerWon ? 8 : -4;
+				Debug.Log("[BET] Ambos apostaron. Resultado aplicado (±8 vidas).");
+			}
+			else if (betActive) // solo jugador apuesta
+			{
+				lives += playerWon ? 4 : -4;
+				Debug.Log("[BET] Jugador apostó. Resultado (±4 vidas).");
+			}
+			else if (aiBet) // solo IA apuesta
+			{
+				if (playerWon)
+				{
+					lives += 8;
+					Debug.Log("[BET] Solo IA apostó. Jugador gana +8 vidas.");
+				}
+				else
+				{
+					Debug.Log("[BET] Solo IA apostó. Jugador no recibe nada.");
+				}
+			}
+			// Reset de apuestas
+			GameManager.Instance.ai.aiBet = false;
 			betActive = false;
 		}
 

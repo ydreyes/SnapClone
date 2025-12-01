@@ -8,6 +8,7 @@ public class AIController : MonoBehaviour
 	public List<CardData> drawPile = new();
 	public GameObject cardPrefab;
 	public Transform aiZoneArea;
+	public bool aiBet = false;
 
 	public void ShuffleDeck()
 	{
@@ -67,4 +68,18 @@ public class AIController : MonoBehaviour
 			}
 		}
 	}
+	
+	public void TryRandomBet(int currentTurn)
+	{
+		if (aiBet) return;
+
+		// Probabilidad incremental por turno
+		float chance = currentTurn * 0.15f; // 15% por turno
+		if (Random.value < chance)
+		{
+			aiBet = true;
+			Debug.Log("LA IA HA ACTIVADO UNA APUESTA");
+		}
+	}
+	
 }
