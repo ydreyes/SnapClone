@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Boss_sample
   m_EditorClassIdentifier: 
   enemyName: enemy_sample
-  portrait: {fileID: 21300000, guid: 2b5719efaaccc404e94c02408c91516a, type: 3}
+  portrait: {fileID: 21300000, guid: 8e3c2a1db0fb44003ac859eeda8ebba9, type: 3}
   difficulty: 1
   blurb: 
   deck: {fileID: 11400000, guid: 98de5f4c219130a4cac0942234ed0600, type: 2}
   aiThinkDelay: 0.4
   mulliganDraw: 0
-  previewArt: {fileID: 0}
+  previewArt: {fileID: 21300000, guid: 8e3c2a1db0fb44003ac859eeda8ebba9, type: 3}

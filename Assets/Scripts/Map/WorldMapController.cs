@@ -25,14 +25,23 @@ public class WorldMapController : MonoBehaviour
 
 	void OpenZone(int zoneIndex)
 	{
+		// Jefe final
 		if (zoneIndex == 3)
 		{
-			PlayerProgress.Instance.currentZoneIndex = 3; // zona del final boss
+			PlayerProgress.Instance.currentZoneIndex = 3;
+			// Evitar basura de la zona anterior
+			PlayerPrefs.SetInt("PendingMark", 0);
+			PlayerPrefs.SetInt("LastNodeIndex", -1);
+
 			SceneManager.LoadScene("BossScene");
 			return;
 		}
-		
+		// Zonas normales
 		PlayerProgress.Instance.ResetZoneState(zoneIndex);
+		// 🔥 RESETEAR DATOS DE BATALLAS ANTERIORES
+		PlayerPrefs.SetInt("PendingMark", 0);
+		PlayerPrefs.SetInt("LastNodeIndex", -1);
+
 		SceneManager.LoadScene("ZoneScene");
 	}
 }

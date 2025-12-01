@@ -69,6 +69,22 @@ public class PlayerProgress : MonoBehaviour
 	/// </summary>
 	public void ApplyMatchOutcome(int playerZones, int aiZones, bool playerWon)
 	{
+		// Si estamos en el jefe final
+		if (currentZoneIndex == 3)
+		{
+			finalBossDefeated = playerWon;
+			
+			if (playerWon)
+			{
+				UnityEngine.SceneManagement.SceneManager.LoadScene("GameCompletedScene");
+			}
+			else 
+			{
+				UnityEngine.SceneManagement.SceneManager.LoadScene("GameOverScene");
+			}
+			return;
+		}
+		
 		// 1) Vidas por zonas no dominadas
 		int zonesLost = Mathf.Max(0, 3 - Mathf.Clamp(playerZones, 0, 3));
 		lives -= zonesLost;
@@ -118,14 +134,6 @@ public class PlayerProgress : MonoBehaviour
 			// Guardar bandera para ZoneScene
 			PlayerPrefs.SetInt("PendingMark", 1);
 			UnityEngine.SceneManagement.SceneManager.LoadScene("ZoneScene");
-		}
-		
-		// Si estamos en el jefe final
-		if (currentZoneIndex == 3)
-		{
-			finalBossDefeated = playerWon;
-			UnityEngine.SceneManagement.SceneManager.LoadScene("GameCompletedScene");
-			return;
 		}
 
 		// Clamp de seguridad

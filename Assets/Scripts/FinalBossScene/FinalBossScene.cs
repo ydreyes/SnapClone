@@ -12,9 +12,12 @@ public class FinalBossScene : MonoBehaviour
 	
 	void Start()
 	{
+		PlayerProgress.Instance.finalBossUnlocked = true;
+
 		fightButton.onClick.AddListener(() =>
 		{
 			GameSession.Instance.SetEnemy(bossEnemy);
+			PlayerProgress.Instance.currentZoneIndex = 3; // IMPORTANTE
 			SceneManager.LoadScene("GameScene");
 		});
 

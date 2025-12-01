@@ -1230,7 +1230,7 @@ GameObject:
   - component: {fileID: 1402609711}
   - component: {fileID: 1402609710}
   m_Layer: 5
-  m_Name: Zone1BTN (2)
+  m_Name: Zone3BTN
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1356,7 +1356,7 @@ GameObject:
   - component: {fileID: 1619014058}
   - component: {fileID: 1619014057}
   m_Layer: 5
-  m_Name: Zone1BTN (1)
+  m_Name: Zone2BTN
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1690,7 +1690,7 @@ GameObject:
   - component: {fileID: 1995498282}
   - component: {fileID: 1995498281}
   m_Layer: 5
-  m_Name: Zone1BTN (3)
+  m_Name: ZoneBossBTN
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

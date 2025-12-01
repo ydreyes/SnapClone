@@ -26,17 +26,26 @@ public class ZoneController : MonoBehaviour
 
 	void Start()
 	{
+		
+		ClearPreview();
+		
 		// Si vienes de GameScene tras ganar, necesitas marcar y desbloquear:
-		if (PlayerPrefs.GetInt("PendingMark", 0) == 1)
+		int last = PlayerPrefs.GetInt("LastNodeIndex", -1);
+
+		if (PlayerPrefs.GetInt("PendingMark", 0) == 1 && last != -1)
 		{
 			PlayerPrefs.SetInt("PendingMark", 0);
-			MarkNodeCompletedAndUnlockMore(); // marcar último nodo completado, desbloquear +2
-			return; // recargará escena o seguirá si no completaste todos
+			MarkNodeCompletedAndUnlockMore();
+			return;
+		}
+		else
+		{
+			PlayerPrefs.SetInt("PendingMark", 0);
+			//PlayerPrefs.SetInt("LastNodeIndex", -1);
 		}
 
 		LoadEnemyPool();
 		SetupNodes();
-		ClearPreview();
 
 		if (backButton) backButton.onClick.AddListener(() =>
 		{
@@ -49,7 +58,6 @@ public class ZoneController : MonoBehaviour
 		int zoneIndex = PlayerProgress.Instance.currentZoneIndex;
 		string path = "Enemies/Zone" + zoneIndex; // Resources/Enemies/ZoneX
 
-		//EnemyPool poolAsset = Resources.Load<EnemyPool>(path);
 		EnemyPool poolAsset = Resources.Load<EnemyPool>($"Enemies/Zone{zoneIndex}/EnemyPool_Zone{zoneIndex}");
 		if (poolAsset != null && poolAsset.enemies.Length > 0)
 		{
@@ -172,8 +180,17 @@ public class ZoneController : MonoBehaviour
 			exitToMapButton.onClick.AddListener(() =>
 			{
 			    var pp = PlayerProgress.Instance;
-			    // Al salir con 4 nodos, se marca como "zona completada parcialmente"
-			    pp.zonesCompletedOnWorld = Mathf.Max(pp.zonesCompletedOnWorld, pp.currentZoneIndex + 1);
+			
+			    // 🔥 marcar zona como completada (solo una vez)
+			    if (pp.zonesCompletedOnWorld <= pp.currentZoneIndex)
+			    {
+				    pp.zonesCompletedOnWorld = pp.currentZoneIndex + 1;
+			    }
+			
+			    // evitar que la próxima entrada ejecute lógica de combate anterior
+			    PlayerPrefs.SetInt("PendingMark", 0);
+			    PlayerPrefs.SetInt("LastNodeIndex", -1);
+			
 			    SceneManager.LoadScene("WorldMapScene");
 			});
 		}
