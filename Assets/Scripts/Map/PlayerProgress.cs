@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class PlayerProgress : MonoBehaviour
 {
@@ -69,76 +70,72 @@ public class PlayerProgress : MonoBehaviour
 	/// </summary>
 	public void ApplyMatchOutcome(int playerZones, int aiZones, bool playerWon)
 	{
-		// Si estamos en el jefe final
+		// 🟣 1) Jefe final: flujo especial
 		if (currentZoneIndex == 3)
 		{
 			finalBossDefeated = playerWon;
-			
+
+			// Reset limpio para evitar reentrada a ZoneScene
+			PlayerPrefs.SetInt("PendingMark", 0);
+			PlayerPrefs.SetInt("LastNodeIndex", -1);
+
+			betActive = false;
+			GameManager.Instance.ai.aiBet = false;
+
 			if (playerWon)
 			{
-				UnityEngine.SceneManagement.SceneManager.LoadScene("GameCompletedScene");
+				SceneManager.LoadScene("GameCompletedScene");
 			}
-			else 
+			else
 			{
-				UnityEngine.SceneManagement.SceneManager.LoadScene("GameOverScene");
+				SceneManager.LoadScene("GameOverScene");
 			}
+
 			return;
 		}
-		
+
+		// 🟢 2) Zonas normales -------------------------------
+
 		// 1) Vidas por zonas no dominadas
 		int zonesLost = Mathf.Max(0, 3 - Mathf.Clamp(playerZones, 0, 3));
 		lives -= zonesLost;
-		
-		// 2) Resolución de apuesta (si estaba activa)
+
+		// 2) Apuestas
 		bool aiBet = GameManager.Instance.ai.aiBet;
+
 		if (betActive || aiBet)
 		{
-			// ambos apostaron -> premio x8
 			if (betActive && aiBet)
 			{
 				lives += playerWon ? 8 : -4;
-				Debug.Log("[BET] Ambos apostaron. Resultado aplicado (±8 vidas).");
 			}
-			else if (betActive) // solo jugador apuesta
+			else if (betActive)
 			{
 				lives += playerWon ? 4 : -4;
-				Debug.Log("[BET] Jugador apostó. Resultado (±4 vidas).");
 			}
-			else if (aiBet) // solo IA apuesta
+			else if (aiBet)
 			{
 				if (playerWon)
-				{
 					lives += 8;
-					Debug.Log("[BET] Solo IA apostó. Jugador gana +8 vidas.");
-				}
-				else
-				{
-					Debug.Log("[BET] Solo IA apostó. Jugador no recibe nada.");
-				}
 			}
-			// Reset de apuestas
-			GameManager.Instance.ai.aiBet = false;
+
 			betActive = false;
+			GameManager.Instance.ai.aiBet = false;
 		}
 
-		// 3) Puntos de héroe (100 por zona ganada)
+		// 3) Puntos de héroe
 		heroPoints += playerZones * 100;
-		
+
+		// 4) Game Over por vidas
 		if (lives <= 0)
 		{
-			UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
-			Debug.Log("[PlayerProgress] Game Over: sin vidas");
-		}
-		else
-		{
-			// Guardar bandera para ZoneScene
-			PlayerPrefs.SetInt("PendingMark", 1);
-			UnityEngine.SceneManagement.SceneManager.LoadScene("ZoneScene");
+			SceneManager.LoadScene("GameOverScene");
+			return;
 		}
 
-		// Clamp de seguridad
-		if (lives < 0) lives = 0;
-		Debug.Log($"[PlayerProgress] Resultado aplicado. Vidas: {lives}, Héroe: {heroPoints}");
+		// 5) Volver a ZoneScene para marcar nodo
+		PlayerPrefs.SetInt("PendingMark", 1);
+		SceneManager.LoadScene("ZoneScene");
 	}
 	
 	public void AddCardToCollection(CardData card)

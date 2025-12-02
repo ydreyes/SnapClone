@@ -9,11 +9,8 @@ public class GameManager : MonoBehaviour
 {
 	/// <summary>
 	/// De jueves a domingo, corregir todo el flujo desde el menú hasta el jefe final
+	/// -Crear las 14 cartas iniciales de Marvel Snap
 	/// -Corregir los efectos de zona (removidos de Momento)
-	/// -En el GameScene, debe haber un número indicando las vidas, 2 y un botón que permita apostarlas para que se dubpliquen a 4 y si la IA apuesta, deben ganarse 8.
-	/// Revisar el flujo hasta el jefe final.
-	/// -corregir los efectos de cartas (remover para pruebas)
-	/// -Agregar las cartas (las starter y las starter para enemigos)
 	/// siguiente semana, corregir todo el flujo relacionado al shop
 	/// diciembre, corregir todo lo relacionado al deckbuilding
 	/// resto del año, seguir el trello.
@@ -272,11 +269,11 @@ public class GameManager : MonoBehaviour
 			continueButton.gameObject.SetActive(true);
 			continueButton.onClick.RemoveAllListeners();
 
-			continueButton.onClick.AddListener(() => {
+			continueButton.onClick.AddListener(() => 
+			{
 			    PlayerProgress.Instance.ApplyMatchOutcome(playerWins, aiWins, playerWon);
-			    PlayerPrefs.SetInt("PendingMark", 1);
-			    // Volver a la escena de nodos
-			    SceneManager.LoadScene("ZoneScene");
+				//PlayerPrefs.SetInt("PendingMark", 1);
+				//SceneManager.LoadScene("ZoneScene");
 			});
 		}
 		// progresión después de mostrar resultado.
