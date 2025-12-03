@@ -16,5 +16,12 @@ public class CardView : MonoBehaviour
 		nameText.text = data.cardName;
 		powerText.text = data.power.ToString();
 		descriptionText.text = data.description;
+		
+		// Asignar artwork si existe
+		if (data.artwork != null && backgroundImage != null)
+		{
+			backgroundImage.sprite = data.artwork;
+			backgroundImage.preserveAspect = true;
+		}
 	}
 }

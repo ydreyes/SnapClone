@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
 	/// De jueves a domingo, corregir todo el flujo desde el menú hasta el jefe final
 	/// -Crear las 14 cartas iniciales de Marvel Snap
 	/// -Corregir los efectos de zona (removidos de Momento)
+	/// -Agregar la animación del dorsal al momento de jugarla.
 	/// siguiente semana, corregir todo el flujo relacionado al shop
 	/// diciembre, corregir todo lo relacionado al deckbuilding
 	/// resto del año, seguir el trello.

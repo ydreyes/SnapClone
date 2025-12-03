@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
   m_Name: Nova
   m_EditorClassIdentifier: 
+  onRevealEffect: {fileID: 0}
+  ongoingEffect: {fileID: 0}
+  conditionalEffect: {fileID: 0}
+  onActivateEffect: {fileID: 0}
   cardName: Nova
   energyCost: 2
   power: 2
   abilityType: 1
   description: +2 al revelarse
-  artwork: {fileID: 0}
+  artwork: {fileID: 21300000, guid: a551fa28add8711478d9a985088a3263, type: 3}
