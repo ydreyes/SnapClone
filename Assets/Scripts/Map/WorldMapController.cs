@@ -10,18 +10,6 @@ public class WorldMapController : MonoBehaviour
 	
 	void Start()
 	{
-		//var pp = PlayerProgress.Instance;
-		//zone1Btn.interactable = true;
-		//zone2Btn.interactable = (pp.zonesCompletedOnWorld >= 1);
-		//zone3Btn.interactable = (pp.zonesCompletedOnWorld >= 2);
-		
-		//zoneBossBtn.gameObject.SetActive(pp.zonesCompletedOnWorld >=3 ); // cuando se terminan las 3 zonas
-		//zoneBossBtn.interactable = true;
-
-		//zone1Btn.onClick.AddListener(() => OpenZone(0));
-		//zone2Btn.onClick.AddListener(() => OpenZone(1));
-		//zone3Btn.onClick.AddListener(() => OpenZone(2));
-		//zoneBossBtn.onClick.AddListener(() => OpenZone(3));
 		var pp = PlayerProgress.Instance;
 		
 		zone1Btn.interactable = (pp.zonesCompletedOnWorld == 0);

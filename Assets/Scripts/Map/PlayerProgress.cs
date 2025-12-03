@@ -18,7 +18,7 @@ public class PlayerProgress : MonoBehaviour
 	public List<int> claimedRewards = new List<int>();
 
 	[Header("Puntuación del jugador")]
-	public int lives = 8;                   // puntos de vida iniciales
+	public int lives = 4;                   // puntos de vida iniciales
 	public int heroPoints = 0;              // puntos de héroe (100 por zona ganada)
 	public bool betActive = false;          // si hay una apuesta activa para el PRÓXIMO combate
 	

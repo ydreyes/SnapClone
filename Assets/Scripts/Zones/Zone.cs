@@ -143,11 +143,19 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	public void OnDrop(PointerEventData eventData)
 	{
 		var droppedCard = eventData.pointerDrag?.GetComponent<CardInstance>();
-
-		if (droppedCard != null && droppedCard.isPlayerCard)
+		
+		if (droppedCard == null) return;
+		
+		// Si no se puede jugar la carta, regresa a la mano inmediatamente
+		if (!GameManager.Instance.PlayerCanPlay(droppedCard.data))
 		{
-			if (!GameManager.Instance.PlayerCanPlay(droppedCard.data)) return;
-
+			droppedCard.ReturnToHand();
+			return;
+		}
+		
+		if (droppedCard.isPlayerCard)
+		{
+			droppedCard.wasPlayedThisDrop = true;
 			GameManager.Instance.PlayCardFromDrag(droppedCard, this);
 		}
 	}

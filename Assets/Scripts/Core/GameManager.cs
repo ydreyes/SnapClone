@@ -272,8 +272,6 @@ public class GameManager : MonoBehaviour
 			continueButton.onClick.AddListener(() => 
 			{
 			    PlayerProgress.Instance.ApplyMatchOutcome(playerWins, aiWins, playerWon);
-				//PlayerPrefs.SetInt("PendingMark", 1);
-				//SceneManager.LoadScene("ZoneScene");
 			});
 		}
 		// progresión después de mostrar resultado.

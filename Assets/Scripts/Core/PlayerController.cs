@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
 	{
 		GameObject cardGO = Instantiate(cardPrefab, handArea);
 		CardInstance instance = cardGO.GetComponent<CardInstance>();
+		instance.Init(handArea);
 		
 		instance.data = cardData;
 		instance.currentPower = cardData.power;

@@ -17,7 +17,7 @@ public class FinalBossScene : MonoBehaviour
 		fightButton.onClick.AddListener(() =>
 		{
 			GameSession.Instance.SetEnemy(bossEnemy);
-			PlayerProgress.Instance.currentZoneIndex = 3; // IMPORTANTE
+			PlayerProgress.Instance.currentZoneIndex = 3;
 			SceneManager.LoadScene("GameScene");
 		});
 

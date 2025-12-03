@@ -16,16 +16,24 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public bool canMoveOnce;
 	
 	// referencias para on drag de cartas
-	//private Canvas canvas;
 	private CanvasGroup canvasGroup;
 	private RectTransform rectTransform;
 	private Transform originalParent;
+	private Transform handParent;
+	public bool wasPlayedThisDrop = false;
 	
 	// Awake is called when the script instance is being loaded.
 	protected void Awake()
 	{
 		canvasGroup = GetComponent<CanvasGroup>();
 		rectTransform = GetComponent<RectTransform>();
+	}
+	
+	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
+	protected void Start()
+	{
+		if (originalParent == null)
+			originalParent = transform.parent;
 	}
 
 	public void OnBeginDrag(PointerEventData eventData)
@@ -35,11 +43,13 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		
 		if (!GameManager.Instance.PlayerCanPlay(data))
 			return;
-			
+
 		originalParent = transform.parent;
 		canvasGroup.blocksRaycasts = false;
-		transform.SetParent(originalParent.root); // para que se arrastre por encima
-		
+
+		Transform dragLayer = GameObject.Find("DragLayer").transform;
+		transform.SetParent(dragLayer, true);
+
 		GameManager.Instance.SetDragging(true); // en OnBeginDrag
 	}
 	
@@ -55,15 +65,19 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public void OnEndDrag(PointerEventData eventData)
 	{
 		canvasGroup.blocksRaycasts = true;
-		
-		// regresa a la mano si no se suelta en zona
-		if (transform.parent == originalParent.root)
+
+		// Si la zona marcó que la carta fue jugada, no regresarla a la mano
+		if (wasPlayedThisDrop)
 		{
-			transform.SetParent(originalParent);
-			rectTransform.anchoredPosition = Vector2.zero;
+			wasPlayedThisDrop = false; // reset
+			GameManager.Instance.SetDragging(false);
+			return;
 		}
-		
-		GameManager.Instance.SetDragging(false); // en OnEndDrag
+
+		// Caso contrario: volver a la mano
+		ReturnToHand();
+
+		GameManager.Instance.SetDragging(false);
 	}
 
 	public void PlayCard(Zone zone)
@@ -86,16 +100,42 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	}
 	
 	public void OnPointerClick(PointerEventData eventData)
-	{
+	{	
 		if (!isPlayerCard)
+			return;
+
+		if (GameManager.Instance.IsDragging())
+			return;
+
+		var zone = GameManager.Instance.GetZoneForCard(this);
+		if (zone != null)
 		{
+			// 🔹 La carta está en una zona: la "desjugamos"
+
+			// 1) Devolver energía al jugador sin pasar del máximo del turno
+			int maxEnergy = Mathf.Min(
+				GameManager.Instance.turnManager.currentTurn,6 // o el máximo que uses
+			);
+
+			GameManager.Instance.turnManager.playerEnergy =Mathf.Clamp(GameManager.Instance.turnManager.playerEnergy + data.energyCost, 0, maxEnergy);
+			GameManager.Instance.UpdateEnergyDisplay();
+
+			// 2) Volver a meter la carta en la lista de mano si no está
+			var player = GameManager.Instance.player;
+
+			if (!player.hand.Contains(data))
+			{
+				player.hand.Add(data);
+			}
+
+			// 3) Sacarla de la zona y devolver el prefab a la mano
+			zone.RemoveCard(this);
+			ReturnToHand();
 			return;
 		}
-		
-		if (!GameManager.Instance.IsDragging())
-		{
-			CardPreviewUI.Instance.Show(this);
-		}
+
+		// Si la carta no está en ninguna zona, solo mostramos el preview
+		CardPreviewUI.Instance.Show(this);
 	}
 	
 	// Helper: ¿se puede activar ahora?
@@ -131,6 +171,17 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		hasBeenActivated = true;  // ← clave: solo una vez
 		// Si el efecto cambia poder, refresca la UI de la zona
 		zone.UpdatePowerDisplay();
+	}
+	
+	public void Init(Transform hand)
+	{
+		handParent = hand;
+	}
+	
+	public void ReturnToHand()
+	{
+		transform.SetParent(handParent, false);
+		rectTransform.anchoredPosition = Vector2.zero;
 	}
 
 }
