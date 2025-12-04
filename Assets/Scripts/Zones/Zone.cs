@@ -25,6 +25,11 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	public Image effectImage;
 	public TextMeshProUGUI effectInfoText;
 	
+	// Efecto: próxima carta jugada aquí activa buff en carta específica
+	public CardInstance pendingBoostTargetCard = null; 
+	public int pendingBoostAmount = 0;
+	public int pendingBoostExpiresTurn = -1;
+	
 	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
 	protected void Start()
 	{
@@ -75,6 +80,26 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 			effect.OnCardPlayed(card, this);
 		}
 		
+		// Si existe un trigger pendiente: requiere que NO sea la misma carta
+		if (pendingBoostTargetCard != null)
+		{
+			int currentTurn = GameManager.Instance.turnManager.currentTurn;
+			// Solo en el turno correcto Y la carta NO es la que tiene el efecto
+			if (currentTurn == pendingBoostExpiresTurn && card != pendingBoostTargetCard)
+			{
+				CardInstance boostedCard = pendingBoostTargetCard;
+				// Aplicar buff a la carta con el efecto
+				boostedCard.currentPower += pendingBoostAmount;
+				Debug.Log($"[EFFECT] {boostedCard.data.cardName} gana +{pendingBoostAmount}!");
+				// Consumir el efecto
+				pendingBoostTargetCard = null;
+				pendingBoostAmount = 0;
+				pendingBoostExpiresTurn = -1;
+				boostedCard.UpdatePowerUI();
+				UpdatePowerDisplay();
+			}
+		}
+
 		// max 4 cards per zone
 		var list = card.isPlayerCard ? playerCards:aiCards;
 		
@@ -196,6 +221,15 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 			RemoveCard(c);
 			if (destroyGameObjects && c) Destroy(c.gameObject);
 		}
+	}
+	
+	public void RegisterNextTurnBoostForCard(CardInstance card, int amount)
+	{
+		pendingBoostTargetCard = card;
+		pendingBoostAmount = amount;
+		pendingBoostExpiresTurn = GameManager.Instance.turnManager.currentTurn + 1;
+
+		Debug.Log($"[Zone] {card.data.cardName} recibirá +{amount} si el jugador juega otra carta aquí en el turno {pendingBoostExpiresTurn}");
 	}
 
 }

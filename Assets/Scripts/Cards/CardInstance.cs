@@ -183,5 +183,27 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		transform.SetParent(handParent, false);
 		rectTransform.anchoredPosition = Vector2.zero;
 	}
+	
+	public void UpdatePowerUI()
+	{
+		// Asegúrate que existe referencia al texto de poder
+		var view = GetComponent<CardView>();
+		if (view == null || view.powerText == null) return;
+
+		// Obtener poder base y actual
+		int basePower = data.power;
+		int current = currentPower;
+
+		// Cambiar texto
+		view.powerText.text = current.ToString();
+
+		// Cambiar color según modificación
+		if (current > basePower)
+			view.powerText.color = Color.green;
+		else if (current < basePower)
+			view.powerText.color = Color.red;
+		else
+			view.powerText.color = Color.white; // sin cambios
+	}
 
 }
