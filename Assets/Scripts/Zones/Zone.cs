@@ -111,6 +111,15 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 		
 		list.Add(card);
 		
+		// Aplicar recalculo de ongoing para todas las cartas de la zona
+		foreach (var c in cardsInZone)
+		{
+			if (c.data.ongoingEffect is CardEffect_OngoingEnemyCount ongoing)
+			{
+				ongoing.Recalculate(c, this);
+			}
+		}
+		
 		Transform target = card.isPlayerCard ? playerRow:aiRow;
 		card.transform.SetParent(target, false);
 		card.transform.localScale = Vector3.one;
@@ -206,6 +215,15 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 		// Desparentar por seguridad (evita que quede colgada en la fila)
 		if (card.transform && (card.transform.parent == playerRow || card.transform.parent == aiRow))
 			card.transform.SetParent(null, false);
+
+		// Recalcular ongoing
+		foreach (var c in cardsInZone)
+		{
+			if (c.data.ongoingEffect is CardEffect_OngoingEnemyCount ongoing)
+			{
+				ongoing.Recalculate(c, this);
+			}
+		}
 
 		// Refrescar poder mostrado
 		UpdatePowerDisplay();

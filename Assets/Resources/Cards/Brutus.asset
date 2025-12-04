@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Brutus
   m_EditorClassIdentifier: 
   onRevealEffect: {fileID: 0}
-  ongoingEffect: {fileID: 0}
+  ongoingEffect: {fileID: 11400000, guid: edbb42d5ac4adf845bbdddacd327aedc, type: 2}
   conditionalEffect: {fileID: 0}
   onActivateEffect: {fileID: 0}
   cardName: Brutus
   energyCost: 3
-  power: 5
-  abilityType: 0
-  description: Fuerza Bruta
+  power: 3
+  abilityType: 2
+  description: 'Ongoin: +1 Power for each enemy card here.'
   artwork: {fileID: 21300000, guid: a551fa28add8711478d9a985088a3263, type: 3}
