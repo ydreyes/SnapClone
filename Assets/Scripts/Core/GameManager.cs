@@ -9,8 +9,8 @@ public class GameManager : MonoBehaviour
 {
 	/// <summary>
 	/// De jueves a domingo, corregir todo el flujo desde el menú hasta el jefe final
-	/// Agregar aleatoriedad a la baraja para que salgan cartas diferentes en cada partida.
-	/// -Crear las 14 cartas iniciales de Marvel Snap
+	/// Agregar que las cartas deben revelarse todas al final del turno (activarse los efectos)
+	/// Agregar la prioridad del orden de las cartas jugadas (El que vaya ganando más zonas tendrá prioridad)
 	/// -Crear los 4 personajes.
 	/// -Corregir los efectos de zona (removidos de Momento)
 	/// -Agregar la animación del dorsal al momento de jugarla.
@@ -68,44 +68,46 @@ public class GameManager : MonoBehaviour
 	
 	public void InitNewMatch()
 	{
-		// Limpia zonas/manos si reaprovechas la escena
+		// 1) Limpiar zonas si reaprovechas la escena
 		foreach (var z in zones)
 		{
 			z.ClearAllCards(true);
 		}
-
-		// Reset de decks/hand
-		// 1) Buscar cartas que deben iniciar en la mano inicial del jugador
-		var openingCards = player.deck
-			.Where(c => c.startsInOpeningHand)
-			.ToList();
-
-		// 2) Agregar esas cartas directamente a la mano
-		foreach (var card in openingCards)
-		{
-			player.hand.Add(card);
-			// También removerlas del deck para que no vuelvan a salir
-			player.deck.Remove(card);
-			// Instanciar la carta visual en mano
-			player.SpawnCardInHand(card);
-		}
-		Debug.Log($"[Opening Hand] Cartas especiales agregadas: {openingCards.Count}");
-		
-		player.ResetDeckAndHand(); // ver §4.4
-		ai.ResetDeckAndHand();
-
-		// IA usa el deck del EnemyData elegido en ZoneScene
+		// 2) IA usa el deck del EnemyData elegido en ZoneScene
 		if (GameSession.Instance && GameSession.Instance.selectedEnemy && ai != null)
 		{
 			ai.deck = new System.Collections.Generic.List<CardData>(
 				GameSession.Instance.selectedEnemy.deck.cards
 			);
 		}
+		// 3) Reset de decks/hand (baraja + mano visual)
+		player.ResetDeckAndHand();
+		ai.ResetDeckAndHand();
+		// 4) Efecto "Starts in your opening hand" (tipo Quicksilver)
+		//    Se aplica desde drawPile, DESPUÉS de barajar
+		var openingCards = player.drawPile
+			.Where(c => c.startsInOpeningHand)
+			.ToList();
 
+		foreach (var card in openingCards)
+		{
+			// Quitar del drawPile para que no se roben después
+			player.drawPile.Remove(card);
+			// Instanciar directamente en mano
+			player.SpawnCardInHand(card);
+		}
+
+		Debug.Log($"[Opening Hand] Cartas especiales agregadas: {openingCards.Count}");
+
+		// 5) Reset de turno y energía
 		turnManager.ResetToTurn1(); // energía/turno = 1
-
-		for (int i = 0; i < 3; i++) { player.DrawCard(); ai.DrawCard(); }
-
+		// 6) Robar mano inicial normal (por ejemplo 3 cartas)
+		for (int i = 0; i < 3; i++)
+		{
+			player.DrawCard();
+			ai.DrawCard();
+		}
+		// 7) Actualizar UI de energía
 		UpdateEnergyDisplay();
 	}
 	

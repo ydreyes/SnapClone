@@ -22,10 +22,10 @@ public class PlayerController : MonoBehaviour
 
 	public void DrawCard()
 	{
-		if (deck.Count == 0) return;
+		if (drawPile.Count == 0) return;
 
-		var card = deck[0];
-		deck.RemoveAt(0);
+		CardData card = drawPile[0];
+		drawPile.RemoveAt(0);
 		hand.Add(card);
 		InstantiateCard(card);
 	}
@@ -33,9 +33,24 @@ public class PlayerController : MonoBehaviour
 	public void ResetDeckAndHand()
 	{
 		hand.Clear();
-		drawPile.Clear();
-		drawPile.AddRange(deck);
-		// Si tienes GOs instanciados de la mano, destrúyelos aquí
+		// destruir cartas visuales si reutiliza la escena
+		if (handArea != null)
+		{
+			for (int i = handArea.childCount - 1; i >= 0; i--)
+			{
+				Destroy(handArea.GetChild(i).gameObject);
+			}
+		}
+		// restaurar drawPile como nueva copia del deck base
+		drawPile = new List<CardData>(deck);
+		// mezclar el drawPile
+		for (int i = 0; i < drawPile.Count; i++)
+		{
+			var temp = drawPile[i];
+			int randomIndex = Random.Range(i, drawPile.Count);
+			drawPile[i] = drawPile[randomIndex];
+			drawPile[randomIndex] = temp;
+		}
 	}
 
 	void InstantiateCard(CardData cardData)
