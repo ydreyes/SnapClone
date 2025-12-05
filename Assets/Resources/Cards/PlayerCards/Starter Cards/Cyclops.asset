@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
-  m_Name: Zafiro
+  m_Name: Cyclops
   m_EditorClassIdentifier: 
   onRevealEffect: {fileID: 0}
   ongoingEffect: {fileID: 0}
   conditionalEffect: {fileID: 0}
   onActivateEffect: {fileID: 0}
-  cardName: Titan
-  energyCost: 4
-  power: 6
+  cardName: Cyclops
+  energyCost: 3
+  power: 4
   abilityType: 0
-  description: Cristal de Poder
+  description: Let's Move X-Men
   artwork: {fileID: 21300000, guid: a551fa28add8711478d9a985088a3263, type: 3}

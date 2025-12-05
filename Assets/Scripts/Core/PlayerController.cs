@@ -50,4 +50,24 @@ public class PlayerController : MonoBehaviour
 		
 		instance.GetComponent<CardView>().SetUp(cardData); // inicializar visuales
 	}
+
+	public void SpawnCardInHand(CardData cardData)
+	{
+		// 1. Agregarla a la lista lógica de la mano (si aún no está)
+		if (!hand.Contains(cardData))
+			hand.Add(cardData);
+
+		// 2. Instanciar en UI
+		GameObject cardGO = Instantiate(cardPrefab, handArea);
+		CardInstance instance = cardGO.GetComponent<CardInstance>();
+
+		instance.Init(handArea);
+		instance.data = cardData;
+		instance.currentPower = cardData.power;
+		instance.isPlayerCard = true;
+
+		// 3. Inicializar visualmente
+		instance.GetComponent<CardView>().SetUp(cardData);
+	}
+	
 }

@@ -15,6 +15,7 @@ public class CardData : ScriptableObject
 	public string description;
 	public Sprite artwork;
 	public bool hasActivateEffect => onActivateEffect != null;
+	public bool startsInOpeningHand = false;
 
 }
 

@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
-  m_Name: Jumper
+  m_Name: IronMan
   m_EditorClassIdentifier: 
   onRevealEffect: {fileID: 0}
-  ongoingEffect: {fileID: 0}
-  conditionalEffect: {fileID: 11400000, guid: cf6d62e8be67e5346867bbedd8dd482b, type: 2}
+  ongoingEffect: {fileID: 11400000, guid: edd4204f5b2786a45a07045f3fe73dec, type: 2}
+  conditionalEffect: {fileID: 0}
   onActivateEffect: {fileID: 0}
-  cardName: Jumper
-  energyCost: 2
-  power: 3
-  abilityType: 1
-  description: Gana +2 al Revelarse
+  cardName: Iron Man
+  energyCost: 5
+  power: 0
+  abilityType: 2
+  description: 'Ongoin: Your total power here is doubled'
   artwork: {fileID: 21300000, guid: a551fa28add8711478d9a985088a3263, type: 3}

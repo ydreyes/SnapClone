@@ -75,6 +75,22 @@ public class GameManager : MonoBehaviour
 		}
 
 		// Reset de decks/hand
+		// 1) Buscar cartas que deben iniciar en la mano inicial del jugador
+		var openingCards = player.deck
+			.Where(c => c.startsInOpeningHand)
+			.ToList();
+
+		// 2) Agregar esas cartas directamente a la mano
+		foreach (var card in openingCards)
+		{
+			player.hand.Add(card);
+			// También removerlas del deck para que no vuelvan a salir
+			player.deck.Remove(card);
+			// Instanciar la carta visual en mano
+			player.SpawnCardInHand(card);
+		}
+		Debug.Log($"[Opening Hand] Cartas especiales agregadas: {openingCards.Count}");
+		
 		player.ResetDeckAndHand(); // ver §4.4
 		ai.ResetDeckAndHand();
 

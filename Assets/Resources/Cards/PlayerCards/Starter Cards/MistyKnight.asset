@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
-  m_Name: Centinela
+  m_Name: MistyKnight
   m_EditorClassIdentifier: 
   onRevealEffect: {fileID: 0}
   ongoingEffect: {fileID: 0}
   conditionalEffect: {fileID: 0}
-  onActivateEffect: {fileID: 11400000, guid: 21d01004f88c9b94e8c86e5d0a3ccfba, type: 2}
-  cardName: Centinela
+  onActivateEffect: {fileID: 0}
+  cardName: Misty Knight
   energyCost: 1
-  power: 1
+  power: 2
   abilityType: 0
-  description: Roba Una Carta
+  description: We've got to save the city
   artwork: {fileID: 21300000, guid: a551fa28add8711478d9a985088a3263, type: 3}

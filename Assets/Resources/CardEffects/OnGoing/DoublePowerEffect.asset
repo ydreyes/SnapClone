@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73b0382d5c96dc549aac7f4e6412bd5b, type: 3}
-  m_Name: SwarmBoosterEffect
+  m_Script: {fileID: 11500000, guid: 8ff0857d1c1ab0c40b4aa9686a7f0477, type: 3}
+  m_Name: DoublePowerEffect
   m_EditorClassIdentifier: 

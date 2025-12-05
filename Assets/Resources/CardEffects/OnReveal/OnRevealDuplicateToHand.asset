@@ -9,7 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b9140396a67e3042849a386104e7d2f, type: 3}
-  m_Name: DrawCard
+  m_Script: {fileID: 11500000, guid: d3095e1bceb477b499fd8e2645f50d18, type: 3}
+  m_Name: OnRevealDuplicateToHand
   m_EditorClassIdentifier: 
-  amount: 1

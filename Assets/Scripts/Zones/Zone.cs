@@ -18,6 +18,7 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	
 	public List<CardInstance> cardsInZone = new List<CardInstance>();
 	public List<ZoneEffect> effects = new List<ZoneEffect>();
+	public List<CardInstance> cardsPlayedThisTurn = new List<CardInstance>();
 	
 	[Header("UI")]
 	public Button infoButton;
@@ -29,6 +30,10 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	public CardInstance pendingBoostTargetCard = null; 
 	public int pendingBoostAmount = 0;
 	public int pendingBoostExpiresTurn = -1;
+	
+	// Efecto: tu poder total aquí es duplicado
+	public bool doublePlayerPower = false;
+	public bool doubleAIPower = false;
 	
 	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
 	protected void Start()
@@ -73,6 +78,9 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	{
 		// Efecto de la zona
 		cardsInZone.Add(card);
+
+		// 
+		cardsPlayedThisTurn.Add(card);
 		
 		// Aplica efectos al agregar la carta
 		foreach(var effect in effects)
@@ -129,6 +137,8 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	// Efectos de la zona
 	public void NotifyTurnStart()
 	{
+		cardsPlayedThisTurn.Clear();
+
 		foreach (var effect in effects)
 		{
 			effect.OnTurnStart(this);
@@ -165,8 +175,18 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	
 	public void UpdatePowerDisplay()
 	{
-		playerPowerText.text = $"{GetTotalPower(true)}";
-		aiPowerText.text = $"{GetTotalPower(false)}";
+		int playerTotal = GetTotalPower(true);
+		int aiTotal = GetTotalPower(false);
+
+		// Aplicar duplicadores Ongoing
+		if (doublePlayerPower)
+			playerTotal *= 2;
+
+		if (doubleAIPower)
+			aiTotal *= 2;
+
+		playerPowerText.text = $"{playerTotal}";
+		aiPowerText.text = $"{aiTotal}";
 	}
 	
 	public void OnPointerClick(PointerEventData eventData)

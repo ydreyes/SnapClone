@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
-  m_Name: SwarmBooster
+  m_Name: HawkEye
   m_EditorClassIdentifier: 
-  onRevealEffect: {fileID: 11400000, guid: 30f89ca685357af459fd411f46df5ec4, type: 2}
+  onRevealEffect: {fileID: 11400000, guid: e4291b2eea6fc1b45960cd7f054daf53, type: 2}
   ongoingEffect: {fileID: 0}
   conditionalEffect: {fileID: 0}
   onActivateEffect: {fileID: 0}
-  cardName: SwarmBooster
-  energyCost: 3
-  power: 2
-  abilityType: 2
-  description: +1 por carta en zona
+  cardName: HawkEye
+  energyCost: 1
+  power: 1
+  abilityType: 1
+  description: "+3 si se juega una carta aqu\xED el siguiente turno"
   artwork: {fileID: 21300000, guid: a551fa28add8711478d9a985088a3263, type: 3}

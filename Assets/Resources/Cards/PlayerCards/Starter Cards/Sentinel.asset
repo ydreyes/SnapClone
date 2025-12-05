@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
-  m_Name: Furia
+  m_Name: Sentinel
   m_EditorClassIdentifier: 
-  onRevealEffect: {fileID: 0}
+  onRevealEffect: {fileID: 11400000, guid: 33e161300baeada44ac54a97bbee50a2, type: 2}
   ongoingEffect: {fileID: 0}
   conditionalEffect: {fileID: 0}
   onActivateEffect: {fileID: 0}
-  cardName: Furia
-  energyCost: 3
-  power: 4
-  abilityType: 0
-  description: Furia Divina
+  cardName: Sentinel
+  energyCost: 2
+  power: 3
+  abilityType: 1
+  description: 'On Reveal: Add another sentinel of this card.'
   artwork: {fileID: 21300000, guid: a551fa28add8711478d9a985088a3263, type: 3}
+  startsInOpeningHand: 0
