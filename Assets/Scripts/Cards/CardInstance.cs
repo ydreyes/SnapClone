@@ -82,10 +82,12 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
 	public void PlayCard(Zone zone)
 	{
+		GameManager.Instance.playedOrderThisTurn.Add(this);
+
 		zone.AddCard(this);
 		
 		if (data.onRevealEffect) {
-			data.onRevealEffect.ApplyEffect(this, zone);
+			GameManager.Instance.pendingReveal.Add(this);	
 		}
 		
 		if (data.ongoingEffect) {

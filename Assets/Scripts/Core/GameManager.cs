@@ -7,16 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-	/// <summary>
-	/// De jueves a domingo, corregir todo el flujo desde el menú hasta el jefe final
-	/// Agregar que las cartas deben revelarse todas al final del turno (activarse los efectos)
-	/// Agregar la prioridad del orden de las cartas jugadas (El que vaya ganando más zonas tendrá prioridad)
-	/// -Crear los 4 personajes.
-	/// -Corregir los efectos de zona (removidos de Momento)
-	/// -Agregar la animación del dorsal al momento de jugarla.
-	/// DEMO: Crear las 9 batallas + los 3 subbosses + el jefe final y la cinemática
-	/// Corregir el tema de las vidas y los puntos ganados
-	/// </summary>
 	public static GameManager Instance;
 
 	public PlayerController player;
@@ -49,7 +39,10 @@ public class GameManager : MonoBehaviour
 	private bool isDraggingCard = false;
 	public void SetDragging(bool value) => isDraggingCard = value;
 	public bool IsDragging() => isDraggingCard;
-
+	
+	public List<CardInstance> playedOrderThisTurn = new List<CardInstance>();
+	public List<CardInstance> pendingReveal = new List<CardInstance>();
+	public bool playerHasPriority = true;
 
 	private void Awake()
 	{
@@ -223,27 +216,39 @@ public class GameManager : MonoBehaviour
 			zone.NotifyTurnEnd();
 		}
 		
-		ai.PlayCardAutomatically();
-		// on reveal
-		foreach (var pair in delayedEffects)
-		{
-			var card = pair.Key;
-			int bonus = pair.Value;
-
-			if (card.pendingBoostNextTurn && playerPlayedCardLastTurn)
-			{
-				card.currentPower += bonus;
-				card.pendingBoostNextTurn = false;
-			}
-		}
-		delayedEffects.Clear();
+		RevealCardsInPriorityOrder();
 		
+		var (pZones, aZones, _) = GetZoneOutcome();
+		
+		if (pZones > aZones)
+			playerHasPriority = true;
+		else if (aZones > pZones)
+			playerHasPriority = false;
+
 		turnManager.EndTurn();
 		player.DrawCard();
 		ai.DrawCard();
+		ai.PlayCardAutomatically();
 		UpdateEnergyDisplay();
+
+		// on reveal
+		//foreach (var pair in delayedEffects)
+		//{
+		//	var card = pair.Key;
+		//	int bonus = pair.Value;
+
+		//	if (card.pendingBoostNextTurn && playerPlayedCardLastTurn)
+		//	{
+		//		card.currentPower += bonus;
+		//		card.pendingBoostNextTurn = false;
+		//	}
+		//}
+		//delayedEffects.Clear();
 		// IA intenta apostar cada turno
 		ai.TryRandomBet(turnManager.currentTurn);
+		
+		pendingReveal.Clear();
+		playedOrderThisTurn.Clear();
 	}
 	
 	public void UpdateEnergyDisplay()
@@ -322,6 +327,36 @@ public class GameManager : MonoBehaviour
 				return zone;
 		}
 		return null;
+	}
+	
+	public void RevealCardsInPriorityOrder()
+	{
+		// Si jugador tiene prioridad
+		if (playerHasPriority)
+		{
+			RevealSide(true);   // jugador
+			RevealSide(false);  // ia
+		}
+		else
+		{
+			RevealSide(false);  // ia
+			RevealSide(true);   // jugador
+		}
+
+		pendingReveal.Clear();
+		playedOrderThisTurn.Clear();
+	}
+
+	private void RevealSide(bool isPlayer)
+	{
+		foreach (var card in playedOrderThisTurn)
+		{
+			if (card.isPlayerCard == isPlayer && pendingReveal.Contains(card))
+			{
+				var zone = GetZoneForCard(card);
+				card.data.onRevealEffect.ApplyEffect(card, zone);
+			}
+		}
 	}
 
 }
