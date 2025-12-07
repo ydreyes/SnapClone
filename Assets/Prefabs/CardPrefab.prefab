@@ -422,6 +422,7 @@ MonoBehaviour:
   pendingBoostNextTurn: 0
   hasBeenActivated: 0
   canMoveOnce: 0
+  wasPlayedThisDrop: 0
 --- !u!225 &4370892608635278139
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -666,8 +667,8 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0

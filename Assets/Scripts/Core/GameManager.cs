@@ -7,6 +7,14 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+	/// <summary>
+	/// -Crear las 3 personajes.
+	/// -Corregir los efectos de zona (removidos de Momento)
+	/// -Agregar la animación del dorsal al momento de jugarla.
+	/// DEMO: Crear las 9 batallas + 1 subBoss + el primer jefe y la cinemática
+	/// Corregir el tema de las vidas y los puntos ganados
+	/// </summary>
+
 	public static GameManager Instance;
 
 	public PlayerController player;

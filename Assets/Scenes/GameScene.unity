@@ -1256,8 +1256,8 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 0, y: 175}
-  m_Spacing: {x: 140, y: 0}
+  m_CellSize: {x: 100, y: 150}
+  m_Spacing: {x: 20, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 2
 --- !u!1 &406744301
@@ -2921,10 +2921,16 @@ MonoBehaviour:
   aiPowerText: {fileID: 523699483}
   cardsInZone: []
   effects: []
+  cardsPlayedThisTurn: []
   infoButton: {fileID: 1225949382}
   effectInfoPanel: {fileID: 303723003}
   effectImage: {fileID: 437669302}
   effectInfoText: {fileID: 1783110433}
+  pendingBoostTargetCard: {fileID: 0}
+  pendingBoostAmount: 0
+  pendingBoostExpiresTurn: -1
+  doublePlayerPower: 0
+  doubleAIPower: 0
 --- !u!1 &818828484
 GameObject:
   m_ObjectHideFlags: 0
@@ -3169,6 +3175,9 @@ MonoBehaviour:
   - {fileID: 5150266821791681907, guid: 3c1ae28ebae64c244a2d73b60e3c5315, type: 3}
   betButton: {fileID: 942941777}
   betText: {fileID: 533917524}
+  playedOrderThisTurn: []
+  pendingReveal: []
+  playerHasPriority: 1
 --- !u!4 &849568949
 Transform:
   m_ObjectHideFlags: 0
@@ -3305,10 +3314,16 @@ MonoBehaviour:
   aiPowerText: {fileID: 288791275}
   cardsInZone: []
   effects: []
+  cardsPlayedThisTurn: []
   infoButton: {fileID: 1846261642}
   effectInfoPanel: {fileID: 303723003}
   effectImage: {fileID: 437669302}
   effectInfoText: {fileID: 1783110433}
+  pendingBoostTargetCard: {fileID: 0}
+  pendingBoostAmount: 0
+  pendingBoostExpiresTurn: -1
+  doublePlayerPower: 0
+  doubleAIPower: 0
 --- !u!114 &882347624
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3660,8 +3675,8 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 0, y: 175}
-  m_Spacing: {x: 140, y: 0}
+  m_CellSize: {x: 100, y: 150}
+  m_Spacing: {x: 20, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 2
 --- !u!1 &1225949380
@@ -3856,8 +3871,8 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 0, y: 175}
-  m_Spacing: {x: 140, y: 0}
+  m_CellSize: {x: 100, y: 150}
+  m_Spacing: {x: 20, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 2
 --- !u!1 &1329606053
@@ -4628,8 +4643,8 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 0, y: 175}
-  m_Spacing: {x: 140, y: 0}
+  m_CellSize: {x: 100, y: 150}
+  m_Spacing: {x: 20, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 2
 --- !u!1 &1601543918
@@ -4971,10 +4986,16 @@ MonoBehaviour:
   aiPowerText: {fileID: 1730738205}
   cardsInZone: []
   effects: []
+  cardsPlayedThisTurn: []
   infoButton: {fileID: 1643078769}
   effectInfoPanel: {fileID: 303723003}
   effectImage: {fileID: 437669302}
   effectInfoText: {fileID: 1783110433}
+  pendingBoostTargetCard: {fileID: 0}
+  pendingBoostAmount: 0
+  pendingBoostExpiresTurn: -1
+  doublePlayerPower: 0
+  doubleAIPower: 0
 --- !u!1 &1701577997
 GameObject:
   m_ObjectHideFlags: 0
@@ -6352,8 +6373,8 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 0, y: 175}
-  m_Spacing: {x: 140, y: 0}
+  m_CellSize: {x: 100, y: 150}
+  m_Spacing: {x: 20, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 2
 --- !u!1 &1919389985
@@ -6695,8 +6716,8 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 0, y: 175}
-  m_Spacing: {x: 140, y: 0}
+  m_CellSize: {x: 100, y: 150}
+  m_Spacing: {x: 20, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 2
 --- !u!1 &2032241211
