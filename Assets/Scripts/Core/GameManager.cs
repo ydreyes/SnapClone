@@ -43,6 +43,10 @@ public class GameManager : MonoBehaviour
 	public Button betButton;
 	public TextMeshProUGUI betText;
 	
+	[Header("Pilas de Cartas")]
+	public List<CardData> discardPile = new List<CardData>();
+	public List<CardData> destroyedPile = new List<CardData>();
+	
 	//bandera para la preview de cartas
 	private bool isDraggingCard = false;
 	public void SetDragging(bool value) => isDraggingCard = value;
@@ -365,6 +369,47 @@ public class GameManager : MonoBehaviour
 				card.data.onRevealEffect.ApplyEffect(card, zone);
 			}
 		}
+	}
+	
+	public void DiscardCard(CardInstance card)
+	{
+		if (card == null || card.data == null)
+			return;
+
+		Debug.Log($"[DISCARD] {card.data.cardName}");
+
+		// Quitar de la mano
+		player.hand.Remove(card.data);
+
+		// Registrar en pila
+		discardPile.Add(card.data);
+
+		// Eliminar prefab
+		Destroy(card.gameObject);
+	}
+
+	public void DestroyCard(CardInstance card)
+	{
+		if (card == null || card.data == null)
+			return;
+
+		Debug.Log($"[DESTROY] {card.data.cardName}");
+
+		// Si está en una zona, removerla
+		var zone = GetZoneForCard(card);
+		if (zone != null)
+		{
+			zone.RemoveCard(card);
+		}
+		else
+		{
+			// si estaba en mano
+			player.hand.Remove(card.data);
+		}
+
+		destroyedPile.Add(card.data);
+
+		Destroy(card.gameObject);
 	}
 
 }
