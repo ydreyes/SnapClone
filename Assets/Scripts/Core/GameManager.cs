@@ -412,5 +412,27 @@ public class GameManager : MonoBehaviour
 
 		Destroy(card.gameObject);
 	}
+	
+	public void MoveCard(CardInstance card, Zone from, Zone to)
+	{
+		if (card == null || from == null || to == null) return;
+
+		// seguridad: no mover si destino lleno
+		if (!to.CanAcceptCard(card)) return;
+
+		// Quitar de zona anterior (esto ya actualiza power)
+		from.RemoveCard(card);
+		to.AddCard(card);
+
+		// Marcar que ya se movió
+		card.hasMovedOnce = true;
+		card.canMoveOnce = false;
+
+		// refrescar textos
+		from.UpdatePowerDisplay();
+		to.UpdatePowerDisplay();
+
+		Debug.Log($"[MOVE] {card.data.cardName} movida de {from.name} a {to.name}");
+	}
 
 }

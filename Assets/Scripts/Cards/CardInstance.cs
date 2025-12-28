@@ -12,8 +12,12 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public bool pendingBoostNextTurn = false;
 	// bandera para efecto OnActivate
 	public bool hasBeenActivated = false;
-	// Efecto condicional
+	
+	// --- Move Once ---
 	public bool canMoveOnce;
+	public bool hasMovedOnce = false;
+	public int turnPlayed = -1;
+	private Zone originalZone;
 	
 	// referencias para on drag de cartas
 	private CanvasGroup canvasGroup;
@@ -35,14 +39,44 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		if (originalParent == null)
 			originalParent = transform.parent;
 	}
+	
+	private bool IsOnBoard()
+	{
+		return GameManager.Instance.GetZoneForCard(this) != null;
+	}
+	
+	public bool CanMoveNow()
+	{
+		if (!isPlayerCard) return false;
+		if (!canMoveOnce) return false;
+		if (hasMovedOnce) return false;
+
+		var zone = GameManager.Instance.GetZoneForCard(this);
+		if (zone == null) return false;
+
+		// Solo a partir del turno siguiente (turnPlayed + 1)
+		return GameManager.Instance.turnManager.currentTurn >= turnPlayed + 1;
+	}
 
 	public void OnBeginDrag(PointerEventData eventData)
 	{
 		if (!isPlayerCard) 
 			return;
+			
+		bool onBoard = IsOnBoard();
 		
-		if (!GameManager.Instance.PlayerCanPlay(data))
-			return;
+		if (!onBoard)
+		{
+			if (!GameManager.Instance.PlayerCanPlay(data))
+				return;
+		}
+		else
+		{
+			if (!CanMoveNow())
+				return;
+
+			originalZone = GameManager.Instance.GetZoneForCard(this);
+		}
 
 		originalParent = transform.parent;
 		canvasGroup.blocksRaycasts = false;
@@ -73,9 +107,19 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 			GameManager.Instance.SetDragging(false);
 			return;
 		}
-
-		// Caso contrario: volver a la mano
-		ReturnToHand();
+		
+		// si estaba en el tablero, vuelve a su lugar original
+		if (originalZone != null)
+		{
+			transform.SetParent(originalParent, false);
+			rectTransform.anchoredPosition = Vector2.zero;
+			originalZone = null;
+		}
+		else
+		{
+			// Caso contrario: volver a la mano
+			ReturnToHand();
+		}
 
 		GameManager.Instance.SetDragging(false);
 	}
@@ -86,17 +130,19 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
 		zone.AddCard(this);
 		
-		if (data.onRevealEffect) {
-			GameManager.Instance.pendingReveal.Add(this);	
-		}
+		//if (data.onRevealEffect) {
+		//	GameManager.Instance.pendingReveal.Add(this);	
+		//}
+		//if (data.ongoingEffect) {
+		//	data.ongoingEffect.ApplyEffect(this, zone);
+		//}
+		//if (data.conditionalEffect) {
+		//	data.conditionalEffect.ApplyEffect(this, zone);
+		//}
 		
-		if (data.ongoingEffect) {
-			data.ongoingEffect.ApplyEffect(this, zone);
-		}
-		
-		if (data.conditionalEffect) {
-			data.conditionalEffect.ApplyEffect(this, zone);
-		}
+		if (data.onRevealEffect) GameManager.Instance.pendingReveal.Add(this);
+		if (data.ongoingEffect) GameManager.Instance.pendingReveal.Add(this);
+		if (data.conditionalEffect) GameManager.Instance.pendingReveal.Add(this);
 		
 		zone.UpdatePowerDisplay();
 	}

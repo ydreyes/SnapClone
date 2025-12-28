@@ -62,6 +62,7 @@ public class PlayerController : MonoBehaviour
 		instance.data = cardData;
 		instance.currentPower = cardData.power;
 		instance.isPlayerCard = true;
+		instance.canMoveOnce = cardData.canMoveOnce;
 		
 		instance.GetComponent<CardView>().SetUp(cardData); // inicializar visuales
 	}
@@ -80,6 +81,7 @@ public class PlayerController : MonoBehaviour
 		instance.data = cardData;
 		instance.currentPower = cardData.power;
 		instance.isPlayerCard = true;
+		instance.canMoveOnce = cardData.canMoveOnce;
 
 		// 3. Inicializar visualmente
 		instance.GetComponent<CardView>().SetUp(cardData);

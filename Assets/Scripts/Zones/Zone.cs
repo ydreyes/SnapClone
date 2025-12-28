@@ -197,21 +197,38 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	public void OnDrop(PointerEventData eventData)
 	{
 		var droppedCard = eventData.pointerDrag?.GetComponent<CardInstance>();
-		
 		if (droppedCard == null) return;
-		
-		// Si no se puede jugar la carta, regresa a la mano inmediatamente
+
+		// ¿La carta ya está en alguna zona? => entonces es MOVE
+		var fromZone = GameManager.Instance.GetZoneForCard(droppedCard);
+
+		if (fromZone != null)
+		{
+			// mover solo si está permitido y no es la misma zona
+			if (!droppedCard.CanMoveNow()) { droppedCard.wasPlayedThisDrop = false; return; }
+			if (fromZone == this) { droppedCard.wasPlayedThisDrop = false; return; }
+
+			// validar espacio
+			if (!CanAcceptCard(droppedCard))
+			{
+				Debug.Log("Zona llena, no se puede mover aquí.");
+				return;
+			}
+
+			droppedCard.wasPlayedThisDrop = true; // para que no regrese
+			GameManager.Instance.MoveCard(droppedCard, fromZone, this);
+			return;
+		}
+
+		// Si NO está en zona, es jugar desde mano (tu lógica normal)
 		if (!GameManager.Instance.PlayerCanPlay(droppedCard.data))
 		{
 			droppedCard.ReturnToHand();
 			return;
 		}
-		
-		if (droppedCard.isPlayerCard)
-		{
-			droppedCard.wasPlayedThisDrop = true;
-			GameManager.Instance.PlayCardFromDrag(droppedCard, this);
-		}
+
+		droppedCard.wasPlayedThisDrop = true;
+		GameManager.Instance.PlayCardFromDrag(droppedCard, this);
 	}
 	
 	// Devuelve la lista de cartas de la zona según el bando
@@ -268,6 +285,12 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 		pendingBoostExpiresTurn = GameManager.Instance.turnManager.currentTurn + 1;
 
 		Debug.Log($"[Zone] {card.data.cardName} recibirá +{amount} si el jugador juega otra carta aquí en el turno {pendingBoostExpiresTurn}");
+	}
+	
+	public bool CanAcceptCard(CardInstance card)
+	{
+		var list = card.isPlayerCard ? playerCards : aiCards;
+		return list.Count < 4;
 	}
 
 }
