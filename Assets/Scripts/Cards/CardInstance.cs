@@ -31,6 +31,8 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public bool cantBeMoved = false;
 	public bool cantHavePowerReduced = false;
 	
+	public int permanentPowerBonus = 0;
+	
 	// Awake is called when the script instance is being loaded.
 	protected void Awake()
 	{
@@ -135,16 +137,6 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		GameManager.Instance.playedOrderThisTurn.Add(this);
 
 		zone.AddCard(this);
-		
-		//if (data.onRevealEffect) {
-		//	GameManager.Instance.pendingReveal.Add(this);	
-		//}
-		//if (data.ongoingEffect) {
-		//	data.ongoingEffect.ApplyEffect(this, zone);
-		//}
-		//if (data.conditionalEffect) {
-		//	data.conditionalEffect.ApplyEffect(this, zone);
-		//}
 		
 		if (data.onRevealEffect) GameManager.Instance.pendingReveal.Add(this);
 		if (data.ongoingEffect) GameManager.Instance.pendingReveal.Add(this);

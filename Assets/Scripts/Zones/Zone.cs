@@ -26,6 +26,26 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	public Image effectImage;
 	public TextMeshProUGUI effectInfoText;
 	
+	[Header("Bonos de ubicación")]
+	public int playerLocationBonus = 0;
+	public int aiLocationBonus = 0;
+	
+	// Track de si se jugó una carta aquí en X turno por cada bando
+	private int lastTurnPlayerPlayedHere = -1;
+	private int lastTurnAIPlayedHere = -1;
+	
+	// Pendientes: "si NO juegas aquí en el turno siguiente, +X a esta carta"
+	[System.Serializable]
+	private class PendingNoPlayBoost
+	{
+		public CardInstance target;
+		public int amount;
+		public int expiresTurn; // turno donde se evalúa
+		public bool forPlayer;  // bando del target
+	}
+
+	private readonly List<PendingNoPlayBoost> pendingNoPlayBoosts = new List<PendingNoPlayBoost>();
+	
 	// Efecto: próxima carta jugada aquí activa buff en carta específica
 	public CardInstance pendingBoostTargetCard = null; 
 	public int pendingBoostAmount = 0;
@@ -79,7 +99,10 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 		// Efecto de la zona
 		cardsInZone.Add(card);
 
-		// 
+		int currentTurn = GameManager.Instance.turnManager.currentTurn;
+		if (card.isPlayerCard) lastTurnPlayerPlayedHere = currentTurn;
+		else lastTurnAIPlayedHere = currentTurn;
+		
 		cardsPlayedThisTurn.Add(card);
 		
 		// Aplica efectos al agregar la carta
@@ -91,7 +114,7 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 		// Si existe un trigger pendiente: requiere que NO sea la misma carta
 		if (pendingBoostTargetCard != null)
 		{
-			int currentTurn = GameManager.Instance.turnManager.currentTurn;
+			
 			// Solo en el turno correcto Y la carta NO es la que tiene el efecto
 			if (currentTurn == pendingBoostExpiresTurn && card != pendingBoostTargetCard)
 			{
@@ -151,6 +174,43 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 		{
 			effect.OnTurnEnd(this);
 		}
+		
+		// Evaluar "si NO jugó aquí este turno => buff"
+		int ct = GameManager.Instance.turnManager.currentTurn;
+
+		for (int i = pendingNoPlayBoosts.Count - 1; i >= 0; i--)
+		{
+			var p = pendingNoPlayBoosts[i];
+
+			// Si ya no existe la carta (fue destruida), limpiar
+			if (p.target == null)
+			{
+				pendingNoPlayBoosts.RemoveAt(i);
+				continue;
+			}
+
+			if (p.expiresTurn != ct) continue;
+
+			bool playedHereThisTurn = p.forPlayer
+				? (lastTurnPlayerPlayedHere == ct)
+				: (lastTurnAIPlayedHere == ct);
+
+			// Si NO se jugó aquí este turno => aplicar buff
+			if (!playedHereThisTurn)
+			{
+				p.target.permanentPowerBonus += p.amount;
+				p.target.currentPower += p.amount;
+				p.target.UpdatePowerUI();
+
+				UpdatePowerDisplay();
+
+				Debug.Log($"[NO-PLAY BUFF] {p.target.data.cardName} gana +{p.amount} (no jugó aquí en turno {ct})");
+			}
+
+			// Consumir siempre en el turno objetivo (haya o no haya buff)
+			pendingNoPlayBoosts.RemoveAt(i);
+		}
+
 	}
 
 	public void RegisterOngoing(CardInstance card)
@@ -168,8 +228,12 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	{
 		int total = 0;
 		var list = forPlayer ? playerCards : aiCards;
+		
 		foreach (var card in list)
 			total += card.currentPower;
+		
+		total += forPlayer ? playerLocationBonus : aiLocationBonus;
+	
 		return total;
 	}
 	
@@ -291,6 +355,82 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	{
 		var list = card.isPlayerCard ? playerCards : aiCards;
 		return list.Count < 4;
+	}
+	
+	public void RecalculateZonePowers()
+	{
+		// 1) Reset: volver al poder base
+		foreach (var c in playerCards)
+		{
+			if (c == null || c.data == null) continue;
+			c.currentPower = c.data.power;
+		}
+
+		foreach (var c in aiCards)
+		{
+			if (c == null || c.data == null) continue;
+			c.currentPower = c.data.power;
+		}
+
+		// 2) Aplicar auras Ongoing "other ongoing here +2"
+		ApplyOngoingAura(playerCards);
+		ApplyOngoingAura(aiCards);
+
+		// 3) Refrescar UI de cartas + zona
+		foreach (var c in playerCards) if (c != null) c.UpdatePowerUI();
+		foreach (var c in aiCards) if (c != null) c.UpdatePowerUI();
+
+		UpdatePowerDisplay();
+	}
+
+	private void ApplyOngoingAura(System.Collections.Generic.List<CardInstance> sideCards)
+	{
+		// Buscar todas las fuentes del aura en esta zona
+		var sources = new System.Collections.Generic.List<(CardInstance source, int bonus)>();
+
+		foreach (var c in sideCards)
+		{
+			if (c == null || c.data == null) continue;
+
+			if (c.data.ongoingEffect is OngoingBuffOtherOngoingHereEffect aura)
+				sources.Add((c, aura.bonus));
+		}
+
+		if (sources.Count == 0) return;
+
+		// Por cada fuente, buffear a "otras" cartas ongoing aquí
+		foreach (var (source, bonus) in sources)
+		{
+			foreach (var target in sideCards)
+			{
+				if (target == null || target.data == null) continue;
+
+				// no se bufea a sí misma
+				if (target == source) continue;
+
+				// solo a cartas que tengan ongoingEffect
+				if (target.data.ongoingEffect == null) continue;
+
+				// bloquear reducción si tienes inmunidad
+				// (aquí solo sumamos, así que está ok)
+				target.currentPower += bonus;
+			}
+		}
+	}
+	
+	public void RegisterNextTurnNoPlayBoostForCard(CardInstance card, int amount)
+	{
+		int currentTurn = GameManager.Instance.turnManager.currentTurn;
+
+		pendingNoPlayBoosts.Add(new PendingNoPlayBoost
+		{
+			target = card,
+			amount = amount,
+			expiresTurn = currentTurn + 1,
+			forPlayer = card.isPlayerCard
+		});
+
+		Debug.Log($"[Zone] Registrado NO-PLAY: {card.data.cardName} +{amount} si no juega aquí en turno {currentTurn + 1}");
 	}
 
 }

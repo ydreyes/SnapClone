@@ -14,8 +14,8 @@ public class GameManager : MonoBehaviour
 	/// -Agregar el efecto de zoom al momento de jugar
 	/// DEMO: Crear las 9 batallas + 1 subBoss + el primer jefe y la cinemática
 	/// Corregir el tema de las vidas y los puntos ganados
-	/// Lista de Cartas Pendientes: M fantastic, Cap America, Kazar, Spectrum
-	/// iron heart, wolfBane, groot, Jessica Jones, White Tiger, Gamora, Odin, rocket, america chavez
+	/// Lista de Cartas Pendientes:
+	/// Jessica Jones, White Tiger, Gamora, Odin, rocket, america chavez
 	/// Electra, Angela, Bishop, strong Guy, kazard, Blue Marvel, Kraven, Multiple Man, Scarlet witch
 	/// Doctor strange, Viv Vision Olaris, Proffesor X, Vision, Heindall, Deadpoool, X-23, Moira X
 	/// Carnage, Weapon X, Wolverine, KillMonger, Venom, DeathLock, Knull, Death, Scorn, morbius, colleng wing
@@ -453,5 +453,152 @@ public class GameManager : MonoBehaviour
 
 		Debug.Log($"[MOVE] {card.data.cardName} movida de {from.name} a {to.name}");
 	}
+	
+	public void RecalculateAdjacentLocationBonuses()
+	{
+		// 1) Reset bonuses
+		for (int i = 0; i < zones.Count; i++)
+		{
+			zones[i].playerLocationBonus = 0;
+			zones[i].aiLocationBonus = 0;
+		}
+
+		// 2) Recalcular según cartas con el efecto
+		for (int i = 0; i < zones.Count; i++)
+		{
+			var z = zones[i];
+
+			// Jugador
+			foreach (var c in z.playerCards)
+			{
+				if (c?.data?.ongoingEffect is OngoingAdjacentLocationsBonusEffect eff)
+				{
+					ApplyAdjacentBonus(i, true, eff.bonusPower);
+				}
+			}
+
+			// IA
+			foreach (var c in z.aiCards)
+			{
+				if (c?.data?.ongoingEffect is OngoingAdjacentLocationsBonusEffect eff)
+				{
+					ApplyAdjacentBonus(i, false, eff.bonusPower);
+				}
+			}
+		}
+
+		// 3) Refrescar UI
+		foreach (var z in zones)
+			z.UpdatePowerDisplay();
+	}
+
+	private void ApplyAdjacentBonus(int index, bool forPlayer, int amount)
+	{
+		// izquierda
+		int left = index - 1;
+		if (left >= 0)
+		{
+			if (forPlayer) zones[left].playerLocationBonus += amount;
+			else zones[left].aiLocationBonus += amount;
+		}
+
+		// derecha
+		int right = index + 1;
+		if (right < zones.Count)
+		{
+			if (forPlayer) zones[right].playerLocationBonus += amount;
+			else zones[right].aiLocationBonus += amount;
+		}
+	}
+
+	public void RecalculateGlobalOngoingBuffs()
+	{
+		// 1) Reset: todas las cartas del tablero vuelven a su base power
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			foreach (var c in z.playerCards)
+			{
+				if (c == null || c.data == null) continue;
+				//c.currentPower = c.data.power;
+				c.currentPower = c.data.power + c.permanentPowerBonus;
+			}
+
+			foreach (var c in z.aiCards)
+			{
+				if (c == null || c.data == null) continue;
+				//c.currentPower = c.data.power;
+				c.currentPower = c.data.power + c.permanentPowerBonus;
+			}
+		}
+
+		// 2) Contar cuántas fuentes existen por bando
+		int playerSources = CountSources(true);
+		int aiSources = CountSources(false);
+
+		// 3) Aplicar buffs por bando
+		if (playerSources > 0)
+			ApplyBuffTo1Cost(true, playerSources);
+
+		if (aiSources > 0)
+			ApplyBuffTo1Cost(false, aiSources);
+
+		// 4) Refrescar UI
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			foreach (var c in z.playerCards) if (c != null) c.UpdatePowerUI();
+			foreach (var c in z.aiCards) if (c != null) c.UpdatePowerUI();
+
+			z.UpdatePowerDisplay();
+		}
+	}
+
+	private int CountSources(bool forPlayer)
+	{
+		int count = 0;
+
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			var list = forPlayer ? z.playerCards : z.aiCards;
+			foreach (var c in list)
+			{
+				if (c == null || c.data == null) continue;
+				if (c.data.ongoingEffect is OngoingBuffYour1CostCardsEffect)
+					count++;
+			}
+		}
+
+		return count;
+	}
+
+	private void ApplyBuffTo1Cost(bool forPlayer, int sources)
+	{
+		int totalBonus = sources * 1; // cada fuente da +1
+
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			var list = forPlayer ? z.playerCards : z.aiCards;
+
+			foreach (var c in list)
+			{
+				if (c == null || c.data == null) continue;
+
+				// solo cartas de costo 1
+				if (c.data.energyCost != 1) continue;
+
+				// no auto-buff: en Snap normalmente sí buffea también si es costo 1
+				// Si quieres que NO se buffee a sí misma, dímelo y lo ajusto.
+				c.currentPower += totalBonus;
+			}
+		}
+	}
+
 
 }
