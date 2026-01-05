@@ -62,7 +62,12 @@ public class PlayerController : MonoBehaviour
 		instance.data = cardData;
 		instance.currentPower = cardData.power;
 		instance.isPlayerCard = true;
+		// mover la carta
 		instance.canMoveOnce = cardData.canMoveOnce;
+		// inmunidades
+		instance.cantBeDestroyed = cardData.cantBeDestroyed;
+		instance.cantBeMoved = cardData.cantBeMoved;
+		instance.cantHavePowerReduced = cardData.cantHavePowerReduced;
 		
 		instance.GetComponent<CardView>().SetUp(cardData); // inicializar visuales
 	}
@@ -81,7 +86,12 @@ public class PlayerController : MonoBehaviour
 		instance.data = cardData;
 		instance.currentPower = cardData.power;
 		instance.isPlayerCard = true;
+		// mover la carta
 		instance.canMoveOnce = cardData.canMoveOnce;
+		// inmunidades
+		instance.cantBeDestroyed = cardData.cantBeDestroyed;
+		instance.cantBeMoved = cardData.cantBeMoved;
+		instance.cantHavePowerReduced = cardData.cantHavePowerReduced;
 
 		// 3. Inicializar visualmente
 		instance.GetComponent<CardView>().SetUp(cardData);

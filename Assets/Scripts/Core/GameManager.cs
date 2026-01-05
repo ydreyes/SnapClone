@@ -14,6 +14,12 @@ public class GameManager : MonoBehaviour
 	/// -Agregar el efecto de zoom al momento de jugar
 	/// DEMO: Crear las 9 batallas + 1 subBoss + el primer jefe y la cinemática
 	/// Corregir el tema de las vidas y los puntos ganados
+	/// Lista de Cartas Pendientes: M fantastic, Cap America, Kazar, Spectrum
+	/// iron heart, wolfBane, groot, Jessica Jones, White Tiger, Gamora, Odin, rocket, america chavez
+	/// Electra, Angela, Bishop, strong Guy, kazard, Blue Marvel, Kraven, Multiple Man, Scarlet witch
+	/// Doctor strange, Viv Vision Olaris, Proffesor X, Vision, Heindall, Deadpoool, X-23, Moira X
+	/// Carnage, Weapon X, Wolverine, KillMonger, Venom, DeathLock, Knull, Death, Scorn, morbius, colleng wing
+	/// Gambit, Corvus Glave, Lady Sift, Dracula, Modok, Konshu, Apocalypse.
 	/// </summary>
 
 	public static GameManager Instance;
@@ -391,8 +397,15 @@ public class GameManager : MonoBehaviour
 
 	public void DestroyCard(CardInstance card)
 	{
+		
 		if (card == null || card.data == null)
 			return;
+			
+		if (card.cantBeDestroyed)
+		{
+			Debug.Log($"[DESTROY BLOCKED] {card.data.cardName} no puede ser destruida.");
+			return;
+		}
 
 		Debug.Log($"[DESTROY] {card.data.cardName}");
 
@@ -416,6 +429,12 @@ public class GameManager : MonoBehaviour
 	public void MoveCard(CardInstance card, Zone from, Zone to)
 	{
 		if (card == null || from == null || to == null) return;
+		
+		if (card.cantBeMoved)
+		{
+			Debug.Log($"[MOVE BLOCKED] {card.data.cardName} no puede ser movida.");
+			return;
+		}
 
 		// seguridad: no mover si destino lleno
 		if (!to.CanAcceptCard(card)) return;

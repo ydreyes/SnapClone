@@ -26,6 +26,11 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	private Transform handParent;
 	public bool wasPlayedThisDrop = false;
 	
+	[Header("Inmunidades")]
+	public bool cantBeDestroyed = false;
+	public bool cantBeMoved = false;
+	public bool cantHavePowerReduced = false;
+	
 	// Awake is called when the script instance is being loaded.
 	protected void Awake()
 	{
@@ -48,6 +53,7 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public bool CanMoveNow()
 	{
 		if (!isPlayerCard) return false;
+		if (cantBeMoved) return false;
 		if (!canMoveOnce) return false;
 		if (hasMovedOnce) return false;
 
@@ -253,5 +259,25 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		else
 			view.powerText.color = Color.white; // sin cambios
 	}
+	
+	public void AddPower(int amount)
+	{
+		if (amount == 0) return;
+
+		// Bloquear solo reducciones
+		if (amount < 0 && cantHavePowerReduced)
+		{
+			Debug.Log($"[POWER REDUCTION BLOCKED] {data.cardName} no puede perder poder.");
+			return;
+		}
+
+		currentPower += amount;
+
+		UpdatePowerUI();
+
+		var zone = GameManager.Instance.GetZoneForCard(this);
+		if (zone != null) zone.UpdatePowerDisplay();
+	}
+
 
 }

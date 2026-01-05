@@ -8,6 +8,11 @@ public class CardData : ScriptableObject
 	public CardEffectBase conditionalEffect;
 	public CardEffectBase onActivateEffect;
 	
+	[Header("Inmunidades")]
+	public bool cantBeDestroyed;
+	public bool cantBeMoved;
+	public bool cantHavePowerReduced;
+	
 	public string cardName;
 	public int energyCost;
 	public int power;

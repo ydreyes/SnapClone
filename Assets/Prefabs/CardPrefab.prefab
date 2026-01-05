@@ -422,6 +422,8 @@ MonoBehaviour:
   pendingBoostNextTurn: 0
   hasBeenActivated: 0
   canMoveOnce: 0
+  hasMovedOnce: 0
+  turnPlayed: -1
   wasPlayedThisDrop: 0
 --- !u!225 &4370892608635278139
 CanvasGroup:
