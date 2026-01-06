@@ -16,12 +16,13 @@ public class CardData : ScriptableObject
 	public string cardName;
 	public int energyCost;
 	public int power;
-	public AbilityType abilityType; // Ninguna, OnReveal, Ongoing
+	public AbilityType abilityType; // Ninguna, OnReveal, Ongoing, End turn, Activate
 	public string description;
 	public Sprite artwork;
 	public bool hasActivateEffect => onActivateEffect != null;
 	public bool startsInOpeningHand = false;
 	public bool canMoveOnce;
+	public int permanentPowerBonus = 0;
 
 }
 
@@ -29,5 +30,7 @@ public enum AbilityType
 {
 	None,
 	OnReveal,
-	Ongoing
+	Ongoing,
+	EndTurn,
+	Activate
 }

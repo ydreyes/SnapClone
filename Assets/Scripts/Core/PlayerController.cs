@@ -60,7 +60,9 @@ public class PlayerController : MonoBehaviour
 		instance.Init(handArea);
 		
 		instance.data = cardData;
-		instance.currentPower = cardData.power;
+		//instance.currentPower = cardData.power;
+		instance.currentPower = cardData.power + cardData.permanentPowerBonus;
+		instance.UpdatePowerUI();
 		instance.isPlayerCard = true;
 		// mover la carta
 		instance.canMoveOnce = cardData.canMoveOnce;

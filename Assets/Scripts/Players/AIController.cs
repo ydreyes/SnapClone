@@ -23,19 +23,27 @@ public class AIController : MonoBehaviour
 
 	public void DrawCard()
 	{
-		if (deck.Count == 0) return;
+		if (drawPile.Count == 0) return;
 
-		var card = deck[0];
-		deck.RemoveAt(0);
+		var card = drawPile[0];
+		drawPile.RemoveAt(0);
 		hand.Add(card);
 	}
 	
 	public void ResetDeckAndHand()
 	{
 		hand.Clear();
-		drawPile.Clear();
-		drawPile.AddRange(deck);
-		// Si tienes GOs instanciados de la mano, destrúyelos aquí
+
+		drawPile = new List<CardData>(deck);
+
+		// mezclar drawPile
+		for (int i = 0; i < drawPile.Count; i++)
+		{
+			int r = Random.Range(i, drawPile.Count);
+			var tmp = drawPile[i];
+			drawPile[i] = drawPile[r];
+			drawPile[r] = tmp;
+		}
 	}
 
 	public void PlayCardAutomatically()
@@ -54,13 +62,17 @@ public class AIController : MonoBehaviour
 				GameObject cardGO = Instantiate(cardPrefab);
 				CardInstance instance = cardGO.GetComponent<CardInstance>();
 				instance.data = card;
-				instance.currentPower = card.power;
+				//instance.currentPower = card.power;
+				instance.currentPower = card.power + card.permanentPowerBonus;
+				instance.UpdatePowerUI();
 				instance.isPlayerCard = false;
 				instance.GetComponent<CardView>().SetUp(card); // inicializar visuales
 
 				// Elegir zona aleatoria
 				int zoneIndex = Random.Range(0, GameManager.Instance.zones.Count);
 				Zone selectedZone = GameManager.Instance.zones[zoneIndex];
+				//reducir energia cuando juega una carta la IA
+				GameManager.Instance.turnManager.aiEnergy -= card.energyCost;
 				instance.PlayCard(selectedZone);
 
 				hand.RemoveAt(i);

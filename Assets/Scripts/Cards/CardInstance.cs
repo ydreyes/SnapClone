@@ -32,6 +32,7 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public bool cantHavePowerReduced = false;
 	
 	public int permanentPowerBonus = 0;
+	public bool isReplayingOnReveal = false;
 	
 	// Awake is called when the script instance is being loaded.
 	protected void Awake()
