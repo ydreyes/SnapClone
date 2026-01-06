@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 	/// Corregir el tema de las vidas y los puntos ganados
 	/// Lista de Cartas Pendientes:
 	/// subjefe 1:
-	/// Electra, Angela, Bishop, strong Guy, kazard, Blue Marvel, Kraven, Multiple Man, Scarlet witch, 
+	/// Angela, Bishop, strong Guy, kazard, Blue Marvel, Kraven, Multiple Man, Scarlet witch, 
 	/// Doctor strange, Viv Vision Olaris, Proffesor X, Vision, Heindall, 
 	/// Subjefe 2:
 	/// Deadpoool, X-23, Moira X
@@ -601,6 +601,5 @@ public class GameManager : MonoBehaviour
 			}
 		}
 	}
-
 
 }
