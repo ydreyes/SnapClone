@@ -211,6 +211,40 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 			pendingNoPlayBoosts.RemoveAt(i);
 		}
 
+		// Conditional: After you play a card here, +1 Power (al fin de turno)
+		foreach (var source in cardsInZone)
+		{
+			if (source == null || source.data == null) continue;
+
+			if (source.data.conditionalEffect is not ConditionalAfterYouPlayHerePlus1Effect effect)
+				continue;
+
+			// Contar cuántas cartas jugó SU MISMO bando aquí este turno (excluyendo a la propia carta)
+			int count = 0;
+			for (int i = 0; i < cardsPlayedThisTurn.Count; i++)
+			{
+				var played = cardsPlayedThisTurn[i];
+				if (played == null) continue;
+
+				if (played.isPlayerCard != source.isPlayerCard) continue;
+				if (played == source) continue; // "other card"
+
+				count++;
+			}
+
+			if (count <= 0) continue;
+
+			int totalBonus = count * effect.bonusPerCard;
+
+			// Bonus permanente + power actual
+			source.permanentPowerBonus += totalBonus;
+			source.currentPower += totalBonus;
+
+			source.UpdatePowerUI();
+			UpdatePowerDisplay();
+
+			Debug.Log($"[COND] {source.data.cardName} gana +{totalBonus} (jugaste {count} otra(s) carta(s) aquí este turno)");
+		}
 	}
 
 	public void RegisterOngoing(CardInstance card)

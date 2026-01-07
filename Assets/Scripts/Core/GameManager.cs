@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 	/// Corregir el tema de las vidas y los puntos ganados
 	/// Lista de Cartas Pendientes:
 	/// subjefe 1:
-	/// Angela, Bishop, strong Guy, kazard, Blue Marvel, Kraven, Multiple Man, Scarlet witch, 
+	/// Kraven, Multiple Man, Scarlet witch, 
 	/// Doctor strange, Viv Vision Olaris, Proffesor X, Vision, Heindall, 
 	/// Subjefe 2:
 	/// Deadpoool, X-23, Moira X
@@ -64,6 +64,9 @@ public class GameManager : MonoBehaviour
 	public List<CardInstance> playedOrderThisTurn = new List<CardInstance>();
 	public List<CardInstance> pendingReveal = new List<CardInstance>();
 	public bool playerHasPriority = true;
+	
+	public int playerPlaysThisTurn = 0;
+	public int aiPlaysThisTurn = 0;
 
 	private void Awake()
 	{
@@ -121,6 +124,8 @@ public class GameManager : MonoBehaviour
 			player.DrawCard();
 			ai.DrawCard();
 		}
+		RecalculateHandSizeOngoing(true);
+		RecalculateHandSizeOngoing(false);
 		// 7) Actualizar UI de energía
 		UpdateEnergyDisplay();
 	}
@@ -220,6 +225,8 @@ public class GameManager : MonoBehaviour
 		player.hand.Remove(selectedCard.data);
 		selectedCard.transform.SetParent(null);
 		selectedCard.PlayCard(zone);
+		
+		RecalculateHandSizeOngoing(true);
 
 		// on reveal
 		playerPlayedCardLastTurn = true;
@@ -231,6 +238,9 @@ public class GameManager : MonoBehaviour
 
 	public void EndTurn()
 	{
+		// IA juega antes de terminar turno
+		ai.PlayCardAutomatically();
+		RecalculateHandSizeOngoing(false);
 		// mostrar ocultar panel de info de zona
 		foreach (var zone in zones)
 		{
@@ -240,31 +250,24 @@ public class GameManager : MonoBehaviour
 		RevealCardsInPriorityOrder();
 		
 		var (pZones, aZones, _) = GetZoneOutcome();
-		
 		if (pZones > aZones)
 			playerHasPriority = true;
 		else if (aZones > pZones)
 			playerHasPriority = false;
 
 		turnManager.EndTurn();
+		ResetPlaysThisTurn();
+
+		foreach (var z in zones)
+			z.NotifyTurnStart();
+
 		player.DrawCard();
 		ai.DrawCard();
-		ai.PlayCardAutomatically();
+		
+		RecalculateHandSizeOngoing(true);
+
 		UpdateEnergyDisplay();
 
-		// on reveal
-		//foreach (var pair in delayedEffects)
-		//{
-		//	var card = pair.Key;
-		//	int bonus = pair.Value;
-
-		//	if (card.pendingBoostNextTurn && playerPlayedCardLastTurn)
-		//	{
-		//		card.currentPower += bonus;
-		//		card.pendingBoostNextTurn = false;
-		//	}
-		//}
-		//delayedEffects.Clear();
 		// IA intenta apostar cada turno
 		ai.TryRandomBet(turnManager.currentTurn);
 		
@@ -334,6 +337,9 @@ public class GameManager : MonoBehaviour
 		turnManager.playerEnergy -= card.data.energyCost;
 
 		player.hand.Remove(card.data);
+		
+		RecalculateHandSizeOngoing(true);
+
 		card.transform.SetParent(null);
 		card.PlayCard(targetZone);
 
@@ -395,6 +401,8 @@ public class GameManager : MonoBehaviour
 
 		// Eliminar prefab
 		Destroy(card.gameObject);
+		
+		RecalculateHandSizeOngoing(true);
 	}
 
 	public void DestroyCard(CardInstance card)
@@ -535,6 +543,7 @@ public class GameManager : MonoBehaviour
 			}
 		}
 
+		// kazar
 		// 2) Contar cuántas fuentes existen por bando
 		int playerSources = CountSources(true);
 		int aiSources = CountSources(false);
@@ -545,6 +554,16 @@ public class GameManager : MonoBehaviour
 
 		if (aiSources > 0)
 			ApplyBuffTo1Cost(false, aiSources);
+		
+		// Blue Marvel Effect
+		int playerOtherSources = CountOtherCardsSources(true);
+		int aiOtherSources = CountOtherCardsSources(false);
+
+		if (playerOtherSources > 0)
+			ApplyBuffToOtherCards(true, playerOtherSources);
+
+		if (aiOtherSources > 0)
+			ApplyBuffToOtherCards(false, aiOtherSources);
 
 		// 4) Refrescar UI
 		foreach (var z in zones)
@@ -598,6 +617,132 @@ public class GameManager : MonoBehaviour
 				// no auto-buff: en Snap normalmente sí buffea también si es costo 1
 				// Si quieres que NO se buffee a sí misma, dímelo y lo ajusto.
 				c.currentPower += totalBonus;
+			}
+		}
+	}
+	
+	public void RegisterPlayThisTurn(bool forPlayer)
+	{
+		if (forPlayer) playerPlaysThisTurn++;
+		else aiPlaysThisTurn++;
+	}
+
+	public void ResetPlaysThisTurn()
+	{
+		playerPlaysThisTurn = 0;
+		aiPlaysThisTurn = 0;
+	}
+
+	// Se llama al final del turno para aplicar "After you play a card, this gains +1 Power"
+	private void ResolveAfterPlayGainsPowerThisTurn()
+	{
+		int ct = turnManager.currentTurn;
+
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			// jugador
+			foreach (var c in z.playerCards)
+			{
+				if (c == null) continue;
+				if (!c.gainPowerAfterYouPlay) continue;
+
+				int plays = playerPlaysThisTurn;
+
+				// si esta carta fue jugada este turno, no se cuenta a sí misma
+				if (c.playedTurn == ct) plays = Mathf.Max(0, plays - 1);
+
+				if (plays <= 0) continue;
+
+				c.currentPower += plays * c.gainPowerAmount;
+				c.UpdatePowerUI();
+			}
+
+			// IA
+			foreach (var c in z.aiCards)
+			{
+				if (c == null) continue;
+				if (!c.gainPowerAfterYouPlay) continue;
+
+				int plays = aiPlaysThisTurn;
+
+				if (c.playedTurn == ct) plays = Mathf.Max(0, plays - 1);
+
+				if (plays <= 0) continue;
+
+				c.currentPower += plays * c.gainPowerAmount;
+				c.UpdatePowerUI();
+			}
+
+			z.UpdatePowerDisplay();
+		}
+	}
+	
+	public void RecalculateHandSizeOngoing(bool forPlayer)
+	{
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			var list = forPlayer ? z.playerCards : z.aiCards;
+
+			foreach (var c in list)
+			{
+				if (c == null || c.data == null) continue;
+
+				if (c.data.ongoingEffect is OngoingHandSizePowerBonusEffect eff)
+					eff.Recalculate(c);
+			}
+		}
+	}
+	
+	private int CountOtherCardsSources(bool forPlayer)
+	{
+		int count = 0;
+
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			var list = forPlayer ? z.playerCards : z.aiCards;
+			foreach (var c in list)
+			{
+				if (c == null || c.data == null) continue;
+				if (c.data.ongoingEffect is OngoingBuffYourOtherCardsPlus1Effect)
+					count++;
+			}
+		}
+
+		return count;
+	}
+	
+	private void ApplyBuffToOtherCards(bool forPlayer, int sources)
+	{
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			var list = forPlayer ? z.playerCards : z.aiCards;
+
+			// 1) fuentes en esta zona (para excluirlas)
+			var sourcesInThisZone = new List<CardInstance>();
+			foreach (var c in list)
+			{
+				if (c == null || c.data == null) continue;
+				if (c.data.ongoingEffect is OngoingBuffYourOtherCardsPlus1Effect)
+					sourcesInThisZone.Add(c);
+			}
+
+			// 2) buff a las otras cartas (excluyendo cada fuente)
+			foreach (var target in list)
+			{
+				if (target == null || target.data == null) continue;
+
+				// excluir “other”: no bufear a ninguna carta que sea fuente de este efecto
+				if (sourcesInThisZone.Contains(target)) continue;
+
+				target.currentPower += sources; // +1 por cada fuente
 			}
 		}
 	}

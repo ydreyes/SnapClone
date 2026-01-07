@@ -34,6 +34,12 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public int permanentPowerBonus = 0;
 	public bool isReplayingOnReveal = false;
 	
+	public bool gainPowerAfterYouPlay = false;
+	public int gainPowerAmount = 1;
+
+	// para excluirse a sí misma si fue jugada este turno
+	public int playedTurn = -1;
+	
 	// Awake is called when the script instance is being loaded.
 	protected void Awake()
 	{
@@ -135,6 +141,9 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
 	public void PlayCard(Zone zone)
 	{
+		playedTurn = GameManager.Instance.turnManager.currentTurn;		
+
+		GameManager.Instance.RegisterPlayThisTurn(isPlayerCard);
 		GameManager.Instance.playedOrderThisTurn.Add(this);
 
 		zone.AddCard(this);

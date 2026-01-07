@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(menuName = "CardEffects/Conditional/AllowOneMove")]
+[CreateAssetMenu(menuName = "Cards/Conditional/AllowOneMove")]
 public class AllowOneMove : CardEffectBase
 {
 	public override void ApplyEffect(CardInstance card, Zone zone)
