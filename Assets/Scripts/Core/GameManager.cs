@@ -16,8 +16,7 @@ public class GameManager : MonoBehaviour
 	/// Corregir el tema de las vidas y los puntos ganados
 	/// Lista de Cartas Pendientes:
 	/// subjefe 1:
-	/// Kraven, Multiple Man, Scarlet witch, 
-	/// Doctor strange, Viv Vision Olaris, Proffesor X, Vision, Heindall, 
+	/// Vision, Heindall,
 	/// Subjefe 2:
 	/// Deadpoool, X-23, Moira X
 	/// Carnage, Weapon X, Wolverine, KillMonger, Venom, DeathLock, Knull, Death, Scorn, morbius, colleng wing
@@ -203,6 +202,73 @@ public class GameManager : MonoBehaviour
 			((BonusPowerZoneEffect)nuevoEfecto).bonusAmount = bonus.bonusAmount;
 		}
 	}
+
+	public void ReplaceZoneEffect(Zone zone)
+	{
+		if (zone == null) return;
+		if (zonaEffectPrefabs == null || zonaEffectPrefabs.Count == 0) return;
+
+		// 1) Guardar tipo actual (si existe)
+		var currentEffects = zone.GetComponents<ZoneEffect>();
+		System.Type currentType = null;
+
+		for (int i = 0; i < currentEffects.Length; i++)
+		{
+			if (currentEffects[i] != null)
+			{
+				currentType = currentEffects[i].GetType();
+				break;
+			}
+		}
+
+		// 2) Elegir un nuevo efecto (intenta que sea distinto)
+		ZoneEffect chosen = null;
+
+		for (int tries = 0; tries < 10; tries++)
+		{
+			var candidate = zonaEffectPrefabs[Random.Range(0, zonaEffectPrefabs.Count)];
+			if (candidate == null) continue;
+
+			if (currentType == null || candidate.GetType() != currentType)
+			{
+				chosen = candidate;
+				break;
+			}
+		}
+
+		if (chosen == null)
+			chosen = zonaEffectPrefabs[Random.Range(0, zonaEffectPrefabs.Count)];
+
+		// 3) Destruir efectos actuales
+		for (int i = 0; i < currentEffects.Length; i++)
+		{
+			if (currentEffects[i] != null)
+				Destroy(currentEffects[i]);
+		}
+
+		// 4) Agregar el nuevo efecto
+		System.Type tipo = chosen.GetType();
+		var nuevo = zone.gameObject.AddComponent(tipo) as ZoneEffect;
+
+		// Copiar base
+		nuevo.effectName = chosen.effectName;
+		nuevo.description = chosen.description;
+
+		// Copiar campos específicos (los que ya vienes usando)
+		if (chosen is ZoneBuffAllCards buff)
+		((ZoneBuffAllCards)nuevo).amount = buff.amount;
+		else if (chosen is ZoneWeakenAllCards debuff)
+		((ZoneWeakenAllCards)nuevo).amount = debuff.amount;
+		else if (chosen is BonusPowerZoneEffect bonus)
+		((BonusPowerZoneEffect)nuevo).bonusAmount = bonus.bonusAmount;
+
+		// 5) Refrescar la lista de efectos de la zona (filtrando los “destroyed”)
+		zone.effects = zone.GetComponents<ZoneEffect>()
+			.Where(e => e != null)
+			.ToList();
+
+		Debug.Log($"[ZONE] {zone.name}: nuevo efecto => {nuevo.effectName}");
+	}
 	
 	public bool PlayerCanPlay(CardData card)
 	{
@@ -378,11 +444,27 @@ public class GameManager : MonoBehaviour
 	{
 		foreach (var card in playedOrderThisTurn)
 		{
-			if (card.isPlayerCard == isPlayer && pendingReveal.Contains(card))
-			{
-				var zone = GetZoneForCard(card);
+			if (card.isPlayerCard != isPlayer) continue;
+			if (!pendingReveal.Contains(card)) continue;
+
+			var zone = GetZoneForCard(card);
+			if (zone == null) continue;
+
+			// 1) On Reveal (1 vez)
+			if (card.data.onRevealEffect != null)
 				card.data.onRevealEffect.ApplyEffect(card, zone);
+
+			// 2) Marcar revelada
+			card.isRevealed = true;
+
+			// 3) Ongoing (activar al revelarse)
+			if (card.data.ongoingEffect != null && !card.effectApplied)
+			{
+				card.data.ongoingEffect.ApplyEffect(card, zone);
+				card.effectApplied = true;
 			}
+
+			zone.UpdatePowerDisplay();
 		}
 	}
 	
@@ -451,7 +533,14 @@ public class GameManager : MonoBehaviour
 
 		// Quitar de zona anterior (esto ya actualiza power)
 		from.RemoveCard(card);
+		if (card.spawnCopyOnMove) 
+		{
+			SpawnCopyInZone(card, from);
+		}
 		to.AddCard(card);
+		
+		//trigger when a card move Here
+		to.NotifyCardMovedHere(card, from);
 
 		// Marcar que ya se movió
 		card.hasMovedOnce = true;
@@ -746,5 +835,68 @@ public class GameManager : MonoBehaviour
 			}
 		}
 	}
+	
+	public void SpawnCopyInZone(CardInstance source, Zone targetZone)
+	{
+		if (source == null || source.data == null || targetZone == null) return;
+
+		// si la zona no acepta (por bando)
+		if (!targetZone.CanAcceptCard(source)) return;
+
+		// elegir prefab según bando
+		GameObject prefab = source.isPlayerCard ? player.cardPrefab : ai.cardPrefab;
+		if (prefab == null)
+		{
+			Debug.LogError("[COPY] No hay prefab asignado para crear la copia.");
+			return;
+		}
+
+		GameObject go = Instantiate(prefab);
+		CardInstance copy = go.GetComponent<CardInstance>();
+
+		// set data base
+		copy.data = source.data;
+		copy.isPlayerCard = source.isPlayerCard;
+
+		// IMPORTANTE: mantener el poder TOTAL actual
+		copy.currentPower = source.currentPower;
+
+		// si manejas permanentPowerBonus, cópialo también (si existe en tu CardInstance)
+		copy.permanentPowerBonus = source.permanentPowerBonus;
+
+		// copiar flags/runtime importantes (para que "mantenga el mismo efecto" ya aplicado)
+		CopyRuntimeState(source, copy);
+
+		// set visuals
+		var view = go.GetComponent<CardView>();
+		if (view != null) view.SetUp(copy.data);
+
+		// meter a zona sin PlayCard()
+		targetZone.AddCardFromEffect(copy);
+	}
+
+	private void CopyRuntimeState(CardInstance src, CardInstance dst)
+	{
+		// Copia lo que YA tengas en tu CardInstance. Aquí incluyo los que he visto en tu proyecto.
+
+		dst.spawnCopyOnMove = src.spawnCopyOnMove;
+
+		dst.cantBeDestroyed = src.cantBeDestroyed;
+		dst.cantBeMoved = src.cantBeMoved;
+		dst.cantHavePowerReduced = src.cantHavePowerReduced;
+
+		dst.canMoveOnce = src.canMoveOnce;
+		dst.hasMovedOnce = src.hasMovedOnce;
+
+		dst.gainPowerAfterYouPlay = src.gainPowerAfterYouPlay;
+		dst.gainPowerAmount = src.gainPowerAmount;
+		dst.playedTurn = src.playedTurn;
+
+		dst.gainsPowerWhenCardMovesHere = src.gainsPowerWhenCardMovesHere;
+		dst.gainsPowerWhenCardMovesHereAmount = src.gainsPowerWhenCardMovesHereAmount;
+
+		// Si tienes más flags de efectos, los copias aquí.
+	}
+
 
 }

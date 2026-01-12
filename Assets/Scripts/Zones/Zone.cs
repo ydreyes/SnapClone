@@ -55,7 +55,10 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	public bool doublePlayerPower = false;
 	public bool doubleAIPower = false;
 	
-	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
+	// Efecto: Proffesor X
+	[HideInInspector] public bool moveContext = false;
+	
+
 	protected void Start()
 	{
 		effects = GetComponents<ZoneEffect>().ToList();
@@ -96,64 +99,68 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 
 	public void AddCard(CardInstance card)
 	{
-		// Efecto de la zona
-		cardsInZone.Add(card);
-
-		int currentTurn = GameManager.Instance.turnManager.currentTurn;
-		if (card.isPlayerCard) lastTurnPlayerPlayedHere = currentTurn;
-		else lastTurnAIPlayedHere = currentTurn;
-		
-		cardsPlayedThisTurn.Add(card);
-		
-		// Aplica efectos al agregar la carta
-		foreach(var effect in effects)
+		if (HasOngoingMoveOnlyRuleActive() && !moveContext)
 		{
-			effect.OnCardPlayed(card, this);
+			Debug.Log("[LOCK] Esta ubicación solo permite agregar/remover mediante MOVE.");
+			if (card != null && card.isPlayerCard) card.ReturnToHand();
+			return;
 		}
-		
-		// Si existe un trigger pendiente: requiere que NO sea la misma carta
-		if (pendingBoostTargetCard != null)
-		{
-			
-			// Solo en el turno correcto Y la carta NO es la que tiene el efecto
-			if (currentTurn == pendingBoostExpiresTurn && card != pendingBoostTargetCard)
-			{
-				CardInstance boostedCard = pendingBoostTargetCard;
-				// Aplicar buff a la carta con el efecto
-				boostedCard.currentPower += pendingBoostAmount;
-				Debug.Log($"[EFFECT] {boostedCard.data.cardName} gana +{pendingBoostAmount}!");
-				// Consumir el efecto
-				pendingBoostTargetCard = null;
-				pendingBoostAmount = 0;
-				pendingBoostExpiresTurn = -1;
-				boostedCard.UpdatePowerUI();
-				UpdatePowerDisplay();
-			}
-		}
+				
+		if (card == null) return;
 
-		// max 4 cards per zone
-		var list = card.isPlayerCard ? playerCards:aiCards;
-		
+		// max 4 cards per zone (por bando)
+		var list = card.isPlayerCard ? playerCards : aiCards;
 		if (list.Count >= 4)
 		{
 			Debug.Log("Zona llena");
 			return;
 		}
-		
+
+		// ✅ Registrar en colecciones SOLO si entra de verdad
+		cardsInZone.Add(card);
 		list.Add(card);
-		
-		// Aplicar recalculo de ongoing para todas las cartas de la zona
-		foreach (var c in cardsInZone)
+
+		int currentTurn = GameManager.Instance.turnManager.currentTurn;
+		if (card.isPlayerCard) lastTurnPlayerPlayedHere = currentTurn;
+		else lastTurnAIPlayedHere = currentTurn;
+
+		cardsPlayedThisTurn.Add(card);
+
+		// Aplica efectos de zona al jugar
+		foreach (var effect in effects)
+			effect.OnCardPlayed(card, this);
+
+		// Trigger pendiente: si se juega otra carta aquí el turno siguiente
+		if (pendingBoostTargetCard != null)
 		{
-			if (c.data.ongoingEffect is CardEffect_OngoingEnemyCount ongoing)
+			if (currentTurn == pendingBoostExpiresTurn && card != pendingBoostTargetCard)
 			{
-				ongoing.Recalculate(c, this);
+				CardInstance boostedCard = pendingBoostTargetCard;
+				boostedCard.currentPower += pendingBoostAmount;
+
+				Debug.Log($"[EFFECT] {boostedCard.data.cardName} gana +{pendingBoostAmount}!");
+
+				pendingBoostTargetCard = null;
+				pendingBoostAmount = 0;
+				pendingBoostExpiresTurn = -1;
+
+				boostedCard.UpdatePowerUI();
+				UpdatePowerDisplay();
 			}
 		}
-		
-		Transform target = card.isPlayerCard ? playerRow:aiRow;
+
+		// Recalcular ongoing (solo si aplica)
+		foreach (var c in cardsInZone)
+		{
+			if (c != null && c.data != null && c.data.ongoingEffect is CardEffect_OngoingEnemyCount ongoing)
+				ongoing.Recalculate(c, this);
+		}
+
+		// Parent UI
+		Transform target = card.isPlayerCard ? playerRow : aiRow;
 		card.transform.SetParent(target, false);
 		card.transform.localScale = Vector3.one;
+
 		UpdatePowerDisplay();
 	}
 	
@@ -210,6 +217,9 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 			// Consumir siempre en el turno objetivo (haya o no haya buff)
 			pendingNoPlayBoosts.RemoveAt(i);
 		}
+		
+		// --- FIN DEL TURNO: resolver habilidades de cartas en esta zona ---
+		ResolveEndTurnCardEffects();
 
 		// Conditional: After you play a card here, +1 Power (al fin de turno)
 		foreach (var source in cardsInZone)
@@ -246,6 +256,35 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 			Debug.Log($"[COND] {source.data.cardName} gana +{totalBonus} (jugaste {count} otra(s) carta(s) aquí este turno)");
 		}
 	}
+	
+	private void ResolveEndTurnCardEffects()
+	{
+		// jugador
+		foreach (var c in playerCards)
+		{
+			if (c == null || c.data == null) continue;
+
+			// Usamos conditionalEffect como "EndTurn" (sin tocar tu arquitectura)
+			if (c.data.conditionalEffect is EndTurnBuffHandIfWinningElseMoveEffect eff)
+			{
+				eff.ApplyEffect(c, this);
+			}
+		}
+
+		// IA
+		foreach (var c in aiCards)
+		{
+			if (c == null || c.data == null) continue;
+
+			if (c.data.conditionalEffect is EndTurnBuffHandIfWinningElseMoveEffect eff)
+			{
+				eff.ApplyEffect(c, this);
+			}
+		}
+
+		UpdatePowerDisplay();
+	}
+
 
 	public void RegisterOngoing(CardInstance card)
 	{
@@ -338,6 +377,12 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	// Quita una carta de la zona (listas + UI)
 	public void RemoveCard(CardInstance card)
 	{
+		if (HasOngoingMoveOnlyRuleActive() && !moveContext)
+		{
+			Debug.Log("[LOCK] No puedes remover cartas de aquí salvo por MOVE.");
+			return;
+		}
+
 		if (card == null) return;
 
 		// Remover de las colecciones
@@ -465,6 +510,84 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 		});
 
 		Debug.Log($"[Zone] Registrado NO-PLAY: {card.data.cardName} +{amount} si no juega aquí en turno {currentTurn + 1}");
+	}
+	
+	public void NotifyCardMovedHere(CardInstance movedCard, Zone fromZone)
+	{
+		// La carta movida ya está dentro de playerCards/aiCards en este punto.
+
+		// Revisar ambos bandos: cualquier carta en esta zona con este efecto gana +2
+		ApplyMoveHereBuff(playerCards, movedCard);
+		ApplyMoveHereBuff(aiCards, movedCard);
+
+		UpdatePowerDisplay();
+	}
+	
+	private void ApplyMoveHereBuff(List<CardInstance> list, CardInstance movedCard)
+	{
+		foreach (var c in list)
+		{
+			if (c == null || c.data == null) continue;
+
+			if (!c.gainsPowerWhenCardMovesHere) continue;
+
+			// opcional: si la misma carta se movió aquí, NO se bufea a sí misma
+			if (c == movedCard) continue;
+
+			c.currentPower += c.gainsPowerWhenCardMovesHereAmount;
+			c.UpdatePowerUI();
+
+			Debug.Log($"[MOVE-HERE BUFF] {c.data.cardName} gana +{c.gainsPowerWhenCardMovesHereAmount} porque una carta se movió a {name}");
+		}
+	}
+	
+	public void AddCardFromEffect(CardInstance card)
+	{
+		if (card == null) return;
+
+		// validar espacio
+		var list = card.isPlayerCard ? playerCards : aiCards;
+		if (list.Count >= 4)
+		{
+			Debug.Log("[EFFECT SPAWN] Zona llena, no se puede crear copia aquí.");
+			Destroy(card.gameObject);
+			return;
+		}
+
+		// añadir a colecciones SIN marcar como "jugada este turno"
+		cardsInZone.Add(card);
+		list.Add(card);
+
+		// parent correcto
+		Transform target = card.isPlayerCard ? playerRow : aiRow;
+		card.transform.SetParent(target, false);
+		card.transform.localScale = Vector3.one;
+
+		// recalcular ongoings específicos que dependan de conteo (como tu EnemyCount)
+		foreach (var c in cardsInZone)
+		{
+			if (c.data != null && c.data.ongoingEffect is CardEffect_OngoingEnemyCount ongoing)
+				ongoing.Recalculate(c, this);
+		}
+
+		// refrescar UI
+		card.UpdatePowerUI();
+		UpdatePowerDisplay();
+	}
+
+	private bool HasOngoingMoveOnlyRuleActive()
+	{
+		// Activo si existe una carta REVELADA en esta zona con ese ongoing
+		for (int i = 0; i < cardsInZone.Count; i++)
+		{
+			var c = cardsInZone[i];
+			if (c == null || c.data == null) continue;
+			if (!c.isRevealed) continue;
+
+			if (c.data.ongoingEffect is OngoingMoveOnlyAddRemoveHereEffect)
+				return true;
+		}
+		return false;
 	}
 
 }

@@ -40,7 +40,17 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	// para excluirse a sí misma si fue jugada este turno
 	public int playedTurn = -1;
 	
-	// Awake is called when the script instance is being loaded.
+	// Cuando una carta se mueve AQUÍ, esta gana poder
+	[Header("Gain powers when move Here")]
+	public bool gainsPowerWhenCardMovesHere = false;
+	public int gainsPowerWhenCardMovesHereAmount = 2;
+	
+	// When this moves, add a copy of this card to the old location
+	public bool spawnCopyOnMove = false;
+	
+	// flag para el efecto de profesor X
+	public bool isRevealed = false;
+
 	protected void Awake()
 	{
 		canvasGroup = GetComponent<CanvasGroup>();
@@ -148,9 +158,21 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
 		zone.AddCard(this);
 		
-		if (data.onRevealEffect) GameManager.Instance.pendingReveal.Add(this);
-		if (data.ongoingEffect) GameManager.Instance.pendingReveal.Add(this);
-		if (data.conditionalEffect) GameManager.Instance.pendingReveal.Add(this);
+		if (data.onRevealEffect)
+		{
+			GameManager.Instance.pendingReveal.Add(this);
+		}
+		
+		if (data.ongoingEffect)
+		{
+			GameManager.Instance.pendingReveal.Add(this);
+		}
+		
+		if (data.conditionalEffect) 
+		{
+			GameManager.Instance.pendingReveal.Add(this);
+			data.conditionalEffect.ApplyEffect(this, zone);
+		}
 		
 		zone.UpdatePowerDisplay();
 	}
