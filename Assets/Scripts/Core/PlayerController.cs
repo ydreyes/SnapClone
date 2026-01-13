@@ -66,6 +66,7 @@ public class PlayerController : MonoBehaviour
 		instance.isPlayerCard = true;
 		// mover la carta
 		instance.canMoveOnce = cardData.canMoveOnce;
+		instance.canMoveEachTurn = cardData.canMoveEachTurn;
 		// inmunidades
 		instance.cantBeDestroyed = cardData.cantBeDestroyed;
 		instance.cantBeMoved = cardData.cantBeMoved;

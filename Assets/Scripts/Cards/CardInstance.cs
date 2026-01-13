@@ -19,6 +19,10 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public int turnPlayed = -1;
 	private Zone originalZone;
 	
+	// --- Can move Each Turn ---
+	public bool canMoveEachTurn = false;
+	public int lastMoveTurn = -1;
+	
 	// referencias para on drag de cartas
 	private CanvasGroup canvasGroup;
 	private RectTransform rectTransform;
@@ -68,19 +72,35 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	{
 		return GameManager.Instance.GetZoneForCard(this) != null;
 	}
-	
+
 	public bool CanMoveNow()
 	{
-		if (!isPlayerCard) return false;
+		// bloqueos globales
 		if (cantBeMoved) return false;
-		if (!canMoveOnce) return false;
-		if (hasMovedOnce) return false;
 
+		// debe estar en una zona
 		var zone = GameManager.Instance.GetZoneForCard(this);
 		if (zone == null) return false;
 
-		// Solo a partir del turno siguiente (turnPlayed + 1)
-		return GameManager.Instance.turnManager.currentTurn >= turnPlayed + 1;
+		int ct = GameManager.Instance.turnManager.currentTurn;
+
+		// 1) Si es "move each turn": 1 move por turno
+		if (canMoveEachTurn)
+		{
+			// NO se puede mover el mismo turno que se jugó (como Snap)
+			if (playedTurn == ct) return false;
+
+			// ya se movió este turno
+			if (lastMoveTurn == ct) return false;
+
+			return true;
+		}
+		// 2) Si es "move once" (tu lógica anterior)
+		if (!canMoveOnce) return false;
+		if (hasMovedOnce) return false;
+		if (playedTurn == ct) return false;
+
+		return true;
 	}
 
 	public void OnBeginDrag(PointerEventData eventData)

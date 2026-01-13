@@ -22,6 +22,7 @@ public class CardData : ScriptableObject
 	public bool hasActivateEffect => onActivateEffect != null;
 	public bool startsInOpeningHand = false;
 	public bool canMoveOnce;
+	public bool canMoveEachTurn = false;
 	public int permanentPowerBonus = 0;
 
 }

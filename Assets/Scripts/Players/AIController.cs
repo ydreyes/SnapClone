@@ -66,6 +66,10 @@ public class AIController : MonoBehaviour
 				instance.currentPower = card.power + card.permanentPowerBonus;
 				instance.UpdatePowerUI();
 				instance.isPlayerCard = false;
+				// card can move
+				instance.canMoveOnce = card.canMoveOnce;
+				instance.canMoveEachTurn = card.canMoveEachTurn;
+
 				instance.GetComponent<CardView>().SetUp(card); // inicializar visuales
 
 				// Elegir zona aleatoria

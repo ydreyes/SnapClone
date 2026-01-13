@@ -15,8 +15,6 @@ public class GameManager : MonoBehaviour
 	/// DEMO: Crear las 9 batallas + 1 subBoss + el primer jefe y la cinemática
 	/// Corregir el tema de las vidas y los puntos ganados
 	/// Lista de Cartas Pendientes:
-	/// subjefe 1:
-	/// Vision, Heindall,
 	/// Subjefe 2:
 	/// Deadpoool, X-23, Moira X
 	/// Carnage, Weapon X, Wolverine, KillMonger, Venom, DeathLock, Knull, Death, Scorn, morbius, colleng wing
@@ -541,10 +539,14 @@ public class GameManager : MonoBehaviour
 		
 		//trigger when a card move Here
 		to.NotifyCardMovedHere(card, from);
+		
+		card.lastMoveTurn = turnManager.currentTurn;
 
-		// Marcar que ya se movió
-		card.hasMovedOnce = true;
-		card.canMoveOnce = false;
+		if (!card.canMoveEachTurn)
+		{
+			card.hasMovedOnce = true;
+			card.canMoveOnce = false;
+		}
 
 		// refrescar textos
 		from.UpdatePowerDisplay();
