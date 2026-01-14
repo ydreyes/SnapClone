@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afcc4520c1c509444843af8c4db752c5, type: 3}
+  m_Name: Enemy_deck_OnReveal
+  m_EditorClassIdentifier: 
+  deckName: On Reveal
+  deckIcon: {fileID: 21300000, guid: 025ccf15fd74a4df396982636b3bbffd, type: 3}
+  cards:
+  - {fileID: 11400000, guid: c57173c8e60bb8b4399cb3ea9c0fb199, type: 2}
+  - {fileID: 11400000, guid: 4d8a9c93a62cf104990f72592c57f198, type: 2}
+  - {fileID: 11400000, guid: d3529173e44836f46aed45fc723a9eb8, type: 2}
+  - {fileID: 11400000, guid: c7fb8d3d1171b0147b2babfca84d477e, type: 2}
+  - {fileID: 11400000, guid: 6cea199a89494f6499e0251cb7b57300, type: 2}
+  - {fileID: 11400000, guid: f329ac622c064ea4e9b1d754086998ef, type: 2}
+  - {fileID: 11400000, guid: 83553c7af4cc2bd41b3d5379e9f2bdba, type: 2}
+  - {fileID: 11400000, guid: 9e3b501533c91274faa78c6cdc9ffe4e, type: 2}
+  - {fileID: 11400000, guid: 6a68fc6e4518d7544b73a80ca9aa76c8, type: 2}
+  - {fileID: 11400000, guid: edb93061385f1e8419d10f0e674e89f3, type: 2}
+  - {fileID: 11400000, guid: 92b87323076b4534baa69d2ab80933fa, type: 2}
+  - {fileID: 11400000, guid: ec8874fcbfc117547aba2189c26f7a44, type: 2}

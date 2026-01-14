@@ -7,20 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-	/// <summary>
-	/// -Crear las 3 personajes.
-	/// -Corregir los efectos de zona (removidos de Momento)
-	/// -Agregar la animación del dorsal al momento de jugarla.
-	/// -Agregar el efecto de zoom al momento de jugar
-	/// DEMO: Crear las 9 batallas + 1 subBoss + el primer jefe y la cinemática
-	/// Corregir el tema de las vidas y los puntos ganados
-	/// Lista de Cartas Pendientes:
-	/// Subjefe 2:
-	/// Deadpoool, X-23, Moira X
-	/// Carnage, Weapon X, Wolverine, KillMonger, Venom, DeathLock, Knull, Death, Scorn, morbius, colleng wing
-	/// Gambit, Corvus Glave, Lady Sift, Dracula, Modok, Konshu, Apocalypse.
-	/// </summary>
-
 	public static GameManager Instance;
 
 	public PlayerController player;
@@ -64,6 +50,9 @@ public class GameManager : MonoBehaviour
 	
 	public int playerPlaysThisTurn = 0;
 	public int aiPlaysThisTurn = 0;
+	
+	// lógica para cartas descartadas
+	private Dictionary<CardData, int> pendingPowerByCard = new Dictionary<CardData, int>();
 
 	private void Awake()
 	{
@@ -347,9 +336,44 @@ public class GameManager : MonoBehaviour
 	// Este método se llama desde TurnManager cuando termina el turno 6
 	public void EvaluateGame()
 	{
+		ResolveEndGameEffects();
+		
 		var (pZones, aZones, playerWon) = GetZoneOutcome();
+		
 		// Mostramos resultado visual (vidas y puntos proyectados)
 		ShowResult(pZones, aZones, playerWon);
+	}
+	
+	private void ResolveEndGameEffects()
+	{
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			// Jugador
+			foreach (var c in z.playerCards)
+			{
+				if (c == null || c.data == null) continue;
+				if (c.endGameEffectApplied) continue;
+				if (c.data.endGameEffect == null) continue;
+
+				c.data.endGameEffect.ApplyEffect(c, z);
+				c.endGameEffectApplied = true;
+			}
+
+			// IA
+			foreach (var c in z.aiCards)
+			{
+				if (c == null || c.data == null) continue;
+				if (c.endGameEffectApplied) continue;
+				if (c.data.endGameEffect == null) continue;
+
+				c.data.endGameEffect.ApplyEffect(c, z);
+				c.endGameEffectApplied = true;
+			}
+
+			z.UpdatePowerDisplay();
+		}
 	}
 	
 	public void ShowResult(int playerWins, int aiWins, bool playerWon)
@@ -448,18 +472,23 @@ public class GameManager : MonoBehaviour
 			var zone = GetZoneForCard(card);
 			if (zone == null) continue;
 
-			// 1) On Reveal (1 vez)
+			// On Reveal (1 vez)
 			if (card.data.onRevealEffect != null)
 				card.data.onRevealEffect.ApplyEffect(card, zone);
 
-			// 2) Marcar revelada
+			// Marcar revelada
 			card.isRevealed = true;
 
-			// 3) Ongoing (activar al revelarse)
+			// Ongoing (activar al revelarse)
 			if (card.data.ongoingEffect != null && !card.effectApplied)
 			{
 				card.data.ongoingEffect.ApplyEffect(card, zone);
 				card.effectApplied = true;
+			}
+			
+			if (card.data.ongoingEffect is OngoingDiscardCountPowerEffect eff)
+			{
+				eff.Recalculate(card);
 			}
 
 			zone.UpdatePowerDisplay();
@@ -472,17 +501,20 @@ public class GameManager : MonoBehaviour
 			return;
 
 		Debug.Log($"[DISCARD] {card.data.cardName}");
-
-		// Quitar de la mano
+		// quitar de mano
 		player.hand.Remove(card.data);
-
-		// Registrar en pila
+		// registrar en pila
 		discardPile.Add(card.data);
-
-		// Eliminar prefab
+		// disparar WHEN DISCARDED (antes de destruir el GO)
+		if (card.data.onDiscardedEffect != null)
+		{
+			card.data.onDiscardedEffect.ApplyEffect(card, null);
+		}
+		// destruir GO
 		Destroy(card.gameObject);
-		
+
 		RecalculateHandSizeOngoing(true);
+		RecalculateDiscardOngoing(false);
 	}
 
 	public void DestroyCard(CardInstance card)
@@ -899,6 +931,68 @@ public class GameManager : MonoBehaviour
 
 		// Si tienes más flags de efectos, los copias aquí.
 	}
+	
+	public void RegisterPendingPowerForCardData(CardData data, int amount)
+	{
+		if (data == null) return;
+		if (!pendingPowerByCard.ContainsKey(data)) pendingPowerByCard[data] = 0;
+		pendingPowerByCard[data] += amount;
+	}
+	
+	public void AddPendingPower(CardData card, int amount)
+	{
+		if (card == null || amount == 0) return;
 
+		if (!pendingPowerByCard.ContainsKey(card))
+			pendingPowerByCard[card] = 0;
+
+		pendingPowerByCard[card] += amount;
+	}
+	
+	public void PutCardBackToHand(CardData card, bool forPlayer)
+	{
+		if (card == null) return;
+
+		if (forPlayer)
+		{
+			player.SpawnCardInHand(card); // esto ya te aplica el pending power porque llamas TryConsumePendingPower
+		}
+		else
+		{
+			// IA no tiene UI de mano, pero la devuelve a su mano lógica
+			if (!ai.hand.Contains(card))
+				ai.hand.Add(card);
+		}
+	}
+	
+	public bool TryConsumePendingPower(CardData data, out int amount)
+	{
+		amount = 0;
+		if (data == null) return false;
+
+		if (!pendingPowerByCard.TryGetValue(data, out amount)) return false;
+		pendingPowerByCard.Remove(data);
+		return amount != 0;
+	}
+	
+	public void RecalculateDiscardOngoing(bool forPlayer)
+	{
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			var list = forPlayer ? z.playerCards : z.aiCards;
+
+			foreach (var c in list)
+			{
+				if (c == null || c.data == null) continue;
+
+				if (c.data.ongoingEffect is OngoingDiscardCountPowerEffect eff)
+				{
+					eff.Recalculate(c);
+				}
+			}
+		}
+	}
 
 }

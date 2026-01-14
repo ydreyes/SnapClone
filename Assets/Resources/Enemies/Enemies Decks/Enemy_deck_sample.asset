@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: afcc4520c1c509444843af8c4db752c5, type: 3}
-  m_Name: Enemy_deck
+  m_Name: Enemy_deck_sample
   m_EditorClassIdentifier: 
   deckName: Enemy_Deck
   deckIcon: {fileID: 21300000, guid: 5ad3289d4f3804aa29106e2fe832ce89, type: 3}

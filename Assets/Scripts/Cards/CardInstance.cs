@@ -54,6 +54,9 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	
 	// flag para el efecto de profesor X
 	public bool isRevealed = false;
+	
+	// flag para el fin de turno
+	public bool endGameEffectApplied = false;
 
 	protected void Awake()
 	{

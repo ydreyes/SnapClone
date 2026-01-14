@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afcc4520c1c509444843af8c4db752c5, type: 3}
+  m_Name: Enemy_deck_Kazeo
+  m_EditorClassIdentifier: 
+  deckName: Kazeo
+  deckIcon: {fileID: 21300000, guid: 8e3c2a1db0fb44003ac859eeda8ebba9, type: 3}
+  cards:
+  - {fileID: 11400000, guid: c57173c8e60bb8b4399cb3ea9c0fb199, type: 2}
+  - {fileID: 11400000, guid: 969f7395a3ef200438cbe7f210200556, type: 2}
+  - {fileID: 11400000, guid: f492d33f3963e1a41b4246b10e135f4d, type: 2}
+  - {fileID: 11400000, guid: 43496a9e996289347965d3903a9cdeb4, type: 2}
+  - {fileID: 11400000, guid: d3529173e44836f46aed45fc723a9eb8, type: 2}
+  - {fileID: 11400000, guid: 23f72e4cd48a0fb40932a185631b1d78, type: 2}
+  - {fileID: 11400000, guid: 1c1599b7ccd0b624e96c8f8e93903047, type: 2}
+  - {fileID: 11400000, guid: cd0768619a6c67f44bd92110ce817c54, type: 2}
+  - {fileID: 11400000, guid: 30e07ffc948e0a344ac3fa587c613e09, type: 2}
+  - {fileID: 11400000, guid: c5abad2070dfaad4fa34133a445840bd, type: 2}
+  - {fileID: 11400000, guid: 6a17300c9fe5f4740b5d1137e21bd0d0, type: 2}
+  - {fileID: 11400000, guid: 7be679dfce5df5647805ee2dbf242543, type: 2}

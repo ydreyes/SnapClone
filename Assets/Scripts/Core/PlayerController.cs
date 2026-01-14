@@ -60,8 +60,16 @@ public class PlayerController : MonoBehaviour
 		instance.Init(handArea);
 		
 		instance.data = cardData;
-		//instance.currentPower = cardData.power;
+
 		instance.currentPower = cardData.power + cardData.permanentPowerBonus;
+		int pending = 0;
+		if (GameManager.Instance.TryConsumePendingPower(cardData, out pending))
+		{
+			instance.permanentPowerBonus += pending;
+			instance.currentPower += pending;
+			//instance.UpdatePowerUI();
+		}
+
 		instance.UpdatePowerUI();
 		instance.isPlayerCard = true;
 		// mover la carta
@@ -77,7 +85,7 @@ public class PlayerController : MonoBehaviour
 
 	public void SpawnCardInHand(CardData cardData)
 	{
-		// 1. Agregarla a la lista lógica de la mano (si aún no está)
+		// 1. Agregarla a la lista lógica de la mano
 		if (!hand.Contains(cardData))
 			hand.Add(cardData);
 
@@ -88,6 +96,14 @@ public class PlayerController : MonoBehaviour
 		instance.Init(handArea);
 		instance.data = cardData;
 		instance.currentPower = cardData.power;
+		int pending = 0;
+		if (GameManager.Instance.TryConsumePendingPower(cardData, out pending))
+		{
+			instance.permanentPowerBonus += pending;
+			instance.currentPower += pending;
+			instance.UpdatePowerUI();
+		}
+
 		instance.isPlayerCard = true;
 		// mover la carta
 		instance.canMoveOnce = cardData.canMoveOnce;

@@ -7,6 +7,8 @@ public class CardData : ScriptableObject
 	public CardEffectBase ongoingEffect;
 	public CardEffectBase conditionalEffect;
 	public CardEffectBase onActivateEffect;
+	public CardEffectBase onDiscardedEffect;
+	public CardEffectBase endGameEffect;
 	
 	[Header("Inmunidades")]
 	public bool cantBeDestroyed;
@@ -33,5 +35,7 @@ public enum AbilityType
 	OnReveal,
 	Ongoing,
 	EndTurn,
-	Activate
+	Activate,
+	OnDiscard,
+	OnDestroy
 }

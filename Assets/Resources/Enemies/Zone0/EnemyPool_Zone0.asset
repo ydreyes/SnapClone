@@ -15,4 +15,9 @@ MonoBehaviour:
   poolName: Zone 0
   enemies:
   - {fileID: 11400000, guid: a5a7355baa8880a46aa391931baa4e47, type: 2}
+  - {fileID: 11400000, guid: 6c684efac0a90344f8ad1cfa8dba2ae6, type: 2}
+  - {fileID: 11400000, guid: 8026752f128c1964d87af5c59f12589d, type: 2}
+  - {fileID: 11400000, guid: 7185fe99b41ff1e44a99061609e3112c, type: 2}
+  - {fileID: 11400000, guid: bb9101b91232980469b60ca3a902db04, type: 2}
+  - {fileID: 11400000, guid: c46447a4000f95e4bb3b60e6017ab5de, type: 2}
   weights: 

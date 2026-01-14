@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afcc4520c1c509444843af8c4db752c5, type: 3}
+  m_Name: Enemy_deck_Ongoing
+  m_EditorClassIdentifier: 
+  deckName: Enemy Ongoing
+  deckIcon: {fileID: 21300000, guid: f9a4bf89a8136412f985ca6719733d5e, type: 3}
+  cards:
+  - {fileID: 11400000, guid: c57173c8e60bb8b4399cb3ea9c0fb199, type: 2}
+  - {fileID: 11400000, guid: 4d8a9c93a62cf104990f72592c57f198, type: 2}
+  - {fileID: 11400000, guid: d3529173e44836f46aed45fc723a9eb8, type: 2}
+  - {fileID: 11400000, guid: 23f72e4cd48a0fb40932a185631b1d78, type: 2}
+  - {fileID: 11400000, guid: c7fb8d3d1171b0147b2babfca84d477e, type: 2}
+  - {fileID: 11400000, guid: 95372821bc6d314428aa932d8684912d, type: 2}
+  - {fileID: 11400000, guid: d26f5cba45d4cbd489f837c0f3cacf43, type: 2}
+  - {fileID: 11400000, guid: cd25e68bce6dab9409b030ac4ff07dcc, type: 2}
+  - {fileID: 11400000, guid: e23f0fc44d0789a42b934a8a6e2bb630, type: 2}
+  - {fileID: 11400000, guid: 6a17300c9fe5f4740b5d1137e21bd0d0, type: 2}
+  - {fileID: 11400000, guid: 3970e9d3c97c70b47b83bd55bfe81219, type: 2}
+  - {fileID: 11400000, guid: dde9fdbce62ded34fa54a196367ac373, type: 2}
