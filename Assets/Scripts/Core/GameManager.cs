@@ -995,4 +995,20 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	public CardData CreateRuntimeCopy(CardData source, int overrideCost)
+	{
+		if (source == null) return null;
+
+		// Clona el ScriptableObject en runtime (no modifica el asset original)
+		CardData copy = Instantiate(source);
+
+		// Ajuste de costo
+		copy.energyCost = overrideCost;
+
+		// Opcional: para diferenciar en UI (no obligatorio)
+		copy.cardName = source.cardName + " (0)";
+
+		return copy;
+	}
+
 }
