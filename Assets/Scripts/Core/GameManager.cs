@@ -51,6 +51,10 @@ public class GameManager : MonoBehaviour
 	public int playerPlaysThisTurn = 0;
 	public int aiPlaysThisTurn = 0;
 	
+	// Energía pendiente para el próximo turno
+	private int pendingPlayerEnergy = 0;
+	private int pendingAIEnergy = 0;
+	
 	// lógica para cartas descartadas
 	private Dictionary<CardData, int> pendingPowerByCard = new Dictionary<CardData, int>();
 
@@ -310,6 +314,18 @@ public class GameManager : MonoBehaviour
 
 		turnManager.EndTurn();
 		ResetPlaysThisTurn();
+		
+		if (pendingPlayerEnergy > 0) 
+		{
+			turnManager.playerEnergy += pendingPlayerEnergy;
+			pendingPlayerEnergy = 0;
+		}
+		
+		if (pendingAIEnergy > 0)
+		{
+			turnManager.aiEnergy += pendingAIEnergy;
+			pendingAIEnergy = 0;
+		}
 
 		foreach (var z in zones)
 			z.NotifyTurnStart();
@@ -530,6 +546,12 @@ public class GameManager : MonoBehaviour
 		}
 
 		Debug.Log($"[DESTROY] {card.data.cardName}");
+		
+		// 🔹 ON DESTROY EFFECT
+		if (card.data.abilityType == AbilityType.OnDestroy && card.data.conditionalEffect != null)
+		{
+			card.data.conditionalEffect.ApplyEffect(card, GetZoneForCard(card));
+		}
 
 		// Si está en una zona, removerla
 		var zone = GetZoneForCard(card);
@@ -909,7 +931,7 @@ public class GameManager : MonoBehaviour
 		targetZone.AddCardFromEffect(copy);
 	}
 
-	private void CopyRuntimeState(CardInstance src, CardInstance dst)
+	public void CopyRuntimeState(CardInstance src, CardInstance dst)
 	{
 		// Copia lo que YA tengas en tu CardInstance. Aquí incluyo los que he visto en tu proyecto.
 
@@ -928,6 +950,7 @@ public class GameManager : MonoBehaviour
 
 		dst.gainsPowerWhenCardMovesHere = src.gainsPowerWhenCardMovesHere;
 		dst.gainsPowerWhenCardMovesHereAmount = src.gainsPowerWhenCardMovesHereAmount;
+		
 
 		// Si tienes más flags de efectos, los copias aquí.
 	}
@@ -1010,5 +1033,23 @@ public class GameManager : MonoBehaviour
 
 		return copy;
 	}
+	
+	public void AddPendingEnergyNextTurn(bool forPlayer, int amount)
+	{
+		if (amount <= 0) return;
+		
+		if (forPlayer)
+		{
+			pendingPlayerEnergy += amount;
+		}
+		else 
+		{
+			pendingAIEnergy += amount;
+		}
+
+		Debug.Log($"[ENERGY NEXT TURN] {(forPlayer ? "Player" : "AI")} +{amount}");
+	}
+	
+	
 
 }

@@ -8,6 +8,7 @@ public class CardData : ScriptableObject
 	public CardEffectBase conditionalEffect;
 	public CardEffectBase onActivateEffect;
 	public CardEffectBase onDiscardedEffect;
+	public CardEffectBase onDestroyEffect;
 	public CardEffectBase endGameEffect;
 	
 	[Header("Inmunidades")]
