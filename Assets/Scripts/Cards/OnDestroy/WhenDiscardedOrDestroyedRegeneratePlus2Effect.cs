@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 
 [CreateAssetMenu(
-	fileName = "WhenDiscardedOrDestroyed_RegenerateAndEnergy",
-	menuName = "Cards/OnDestroy/Regenerate + Energy"
+	fileName = "WhenDiscardedOrDestroyed_RegeneratePlus2",
+	menuName = "Cards/OnDestroy/Regenerate +2 Power"
 )]
-public class WhenDiscardedOrDestroyedRegenerateAndEnergyEffect : CardEffectBase
+public class WhenDiscardedOrDestroyedRegeneratePlus2Effect : CardEffectBase
 {
+	public int bonusPower = 2;
+
 	public override void ApplyEffect(CardInstance card, Zone zone)
 	{
 		if (card == null || card.data == null) return;
@@ -14,9 +16,8 @@ public class WhenDiscardedOrDestroyedRegenerateAndEnergyEffect : CardEffectBase
 		GameManager gm = GameManager.Instance;
 		bool forPlayer = card.isPlayerCard;
 
-		// Elegir una zona aleatoria válida
+		// Buscar zonas válidas
 		List<Zone> validZones = new List<Zone>();
-
 		foreach (var z in gm.zones)
 		{
 			if (z == null) continue;
@@ -26,13 +27,13 @@ public class WhenDiscardedOrDestroyedRegenerateAndEnergyEffect : CardEffectBase
 
 		if (validZones.Count == 0)
 		{
-			Debug.Log("[REGENERATE] No hay zonas disponibles.");
+			Debug.Log("[REGENERATE +2] No hay zonas disponibles.");
 			return;
 		}
 
 		Zone targetZone = validZones[Random.Range(0, validZones.Count)];
 
-		// Crear una COPIA runtime de la carta
+		// Instanciar copia runtime
 		GameObject prefab = forPlayer ? gm.player.cardPrefab : gm.ai.cardPrefab;
 		GameObject go = Object.Instantiate(prefab);
 
@@ -40,11 +41,11 @@ public class WhenDiscardedOrDestroyedRegenerateAndEnergyEffect : CardEffectBase
 		copy.data = card.data;
 		copy.isPlayerCard = forPlayer;
 
-		// Mantener PODER TOTAL
-		copy.currentPower = card.currentPower;
-		copy.permanentPowerBonus = card.permanentPowerBonus;
+		// Aplicar bonus permanente
+		copy.permanentPowerBonus = card.permanentPowerBonus + bonusPower;
+		copy.currentPower = card.currentPower + bonusPower;
 
-		// Copiar flags importantes
+		// Copiar estado runtime (movimiento, inmunidades, efectos, etc.)
 		gm.CopyRuntimeState(card, copy);
 
 		// Visuales
@@ -52,12 +53,9 @@ public class WhenDiscardedOrDestroyedRegenerateAndEnergyEffect : CardEffectBase
 		if (view != null)
 			view.SetUp(copy.data);
 
-		// Agregar a la zona SIN PlayCard()
+		// Agregar a zona SIN PlayCard()
 		targetZone.AddCardFromEffect(copy);
 
-		Debug.Log($"[REGENERATE] {card.data.cardName} reaparece en {targetZone.name}");
-
-		// +1 Energía el próximo turno
-		gm.AddPendingEnergyNextTurn(forPlayer, 1);
+		Debug.Log($"[REGENERATE +2] {card.data.cardName} reaparece en {targetZone.name} con +{bonusPower} Power");
 	}
 }
