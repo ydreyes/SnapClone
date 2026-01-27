@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
-  m_Name: Venom
+  m_Name: Knull
   m_EditorClassIdentifier: 
-  onRevealEffect: {fileID: 11400000, guid: 95eee37829579bf4b9dd6cf36498b09b, type: 2}
+  onRevealEffect: {fileID: 0}
   ongoingEffect: {fileID: 0}
   conditionalEffect: {fileID: 0}
   onActivateEffect: {fileID: 0}
@@ -22,12 +22,11 @@ MonoBehaviour:
   cantBeDestroyed: 0
   cantBeMoved: 0
   cantHavePowerReduced: 0
-  cardName: Venom
-  energyCost: 3
-  power: 3
-  abilityType: 1
-  description: 'On Reveal: Destroy your other cards here. Add their Power to this
-    card.'
+  cardName: Knull
+  energyCost: 6
+  power: 0
+  abilityType: 2
+  description: 'Ongoing: Has the combined Power of all cards destroyed this game.'
   artwork: {fileID: 21300000, guid: 6ef1fffed5641eb4aa64cb7a8065b15a, type: 3}
   startsInOpeningHand: 0
   canMoveOnce: 0
