@@ -263,7 +263,8 @@ public class GameManager : MonoBehaviour
 	
 	public bool PlayerCanPlay(CardData card)
 	{
-		return card.energyCost <= turnManager.playerEnergy;
+		int cost = GetEffectiveEnergyCost(card);
+		return cost <= turnManager.playerEnergy;
 	}
 	
 	public void SelectCardToPlay(CardInstance card)
@@ -276,7 +277,9 @@ public class GameManager : MonoBehaviour
 		if (selectedCard == null) return;
 
 		// Quitar energía
-		turnManager.playerEnergy -= selectedCard.data.energyCost;
+		//turnManager.playerEnergy -= selectedCard.data.energyCost;  
+		int cost = GetEffectiveEnergyCost(selectedCard.data);  //<----Revertir si genera bugs 
+		turnManager.playerEnergy -= cost;
 
 		// Remover visualmente de la mano
 		player.hand.Remove(selectedCard.data);
@@ -438,7 +441,9 @@ public class GameManager : MonoBehaviour
 	
 	public void PlayCardFromDrag(CardInstance card, Zone targetZone)
 	{
-		turnManager.playerEnergy -= card.data.energyCost;
+		//turnManager.playerEnergy -= card.data.energyCost;
+		int cost = GetEffectiveEnergyCost(card.data);
+		turnManager.playerEnergy -= cost;
 
 		player.hand.Remove(card.data);
 		
@@ -568,6 +573,7 @@ public class GameManager : MonoBehaviour
 		destroyedPile.Add(card.data);
 
 		Destroy(card.gameObject);
+		RecalculateDestroyedOngoing();
 	}
 	
 	public void MoveCard(CardInstance card, Zone from, Zone to)
@@ -1050,6 +1056,46 @@ public class GameManager : MonoBehaviour
 		Debug.Log($"[ENERGY NEXT TURN] {(forPlayer ? "Player" : "AI")} +{amount}");
 	}
 	
-	
+	public void RecalculateDestroyedOngoing()
+	{
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+			
+			foreach (var c in z.playerCards)
+			{
+				if (c?.data?.ongoingEffect is OngoingDestroyedCardsTotalPowerEffect eff)
+				{
+					eff.Recalculate(c);
+				}
+			}
+
+			foreach (var c in z.aiCards)
+			{
+				if (c?.data?.ongoingEffect is OngoingDestroyedCardsTotalPowerEffect eff)
+				{
+					eff.Recalculate(c);
+				}
+			}
+		}
+	}
+
+	public int GetEffectiveEnergyCost(CardData card)
+	{
+		if (card == null) return 0;
+
+		int baseCost = card.energyCost;
+
+		// ¿Tiene el efecto?
+		if (card.ongoingEffect is OngoingCostReductionPerDestroyedEffect eff)
+		{
+			int destroyedCount = destroyedPile.Count;
+			int reduction = destroyedCount * eff.costReductionPerCard;
+
+			baseCost -= reduction;
+		}
+
+		return Mathf.Max(0, baseCost);
+	}	
 
 }

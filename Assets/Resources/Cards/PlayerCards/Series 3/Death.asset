@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7e3f329e98f95949ad55edd8cce7b0e, type: 3}
-  m_Name: Knull
+  m_Name: Death
   m_EditorClassIdentifier: 
   onRevealEffect: {fileID: 0}
-  ongoingEffect: {fileID: 11400000, guid: f350fc9fb7f592c4d92c46020f191d98, type: 2}
+  ongoingEffect: {fileID: 11400000, guid: 509d440fd8a4abb42aa8823d306ed876, type: 2}
   conditionalEffect: {fileID: 0}
   onActivateEffect: {fileID: 0}
   onDiscardedEffect: {fileID: 0}
@@ -22,11 +22,11 @@ MonoBehaviour:
   cantBeDestroyed: 0
   cantBeMoved: 0
   cantHavePowerReduced: 0
-  cardName: Knull
-  energyCost: 6
-  power: 0
-  abilityType: 2
-  description: 'Ongoing: Has the combined Power of all cards destroyed this game.'
+  cardName: Death
+  energyCost: 8
+  power: 12
+  abilityType: 3
+  description: Costs 1 less for each card destroyed this game.
   artwork: {fileID: 21300000, guid: 6ef1fffed5641eb4aa64cb7a8065b15a, type: 3}
   startsInOpeningHand: 0
   canMoveOnce: 0

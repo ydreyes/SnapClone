@@ -70,7 +70,6 @@ public class ZoneController : MonoBehaviour
 		}
 	}
 
-
 	void SetupNodes()
 	{
 		var pp = PlayerProgress.Instance;
