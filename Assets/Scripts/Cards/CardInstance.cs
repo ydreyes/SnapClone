@@ -206,30 +206,37 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 			return;
 
 		if (GameManager.Instance.IsDragging())
+		{
 			return;
+		}
 
 		var zone = GameManager.Instance.GetZoneForCard(this);
+		
 		if (zone != null)
 		{
-			// 🔹 La carta está en una zona: la "desjugamos"
-
-			// 1) Devolver energía al jugador sin pasar del máximo del turno
-			int maxEnergy = Mathf.Min(
-				GameManager.Instance.turnManager.currentTurn,6 // o el máximo que uses
-			);
-
-			GameManager.Instance.turnManager.playerEnergy =Mathf.Clamp(GameManager.Instance.turnManager.playerEnergy + data.energyCost, 0, maxEnergy);
+			int currentTurn = GameManager.Instance.turnManager.currentTurn;
+			
+			if (playedTurn != currentTurn)
+			{
+				Debug.Log(
+					$"[UNDO BLOCKED] {data.cardName} fue jugada en turno {playedTurn}, turno actual {currentTurn}"
+				);
+				return;
+			}
+			// devolver energía limitada al máximo del turno
+			int maxEnergy = Mathf.Min(currentTurn, 6);
+			
+			GameManager.Instance.turnManager.playerEnergy = Mathf.Clamp(GameManager.Instance.turnManager.playerEnergy + data.energyCost, 0, maxEnergy);
 			GameManager.Instance.UpdateEnergyDisplay();
-
-			// 2) Volver a meter la carta en la lista de mano si no está
+			
+			//volver a meter la carta a la mano
 			var player = GameManager.Instance.player;
-
 			if (!player.hand.Contains(data))
 			{
 				player.hand.Add(data);
 			}
-
-			// 3) Sacarla de la zona y devolver el prefab a la mano
+			
+			// sacar la zona y devolver el prefab
 			zone.RemoveCard(this);
 			ReturnToHand();
 			return;
@@ -325,6 +332,5 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		var zone = GameManager.Instance.GetZoneForCard(this);
 		if (zone != null) zone.UpdatePowerDisplay();
 	}
-
 
 }
