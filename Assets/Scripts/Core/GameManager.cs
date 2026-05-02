@@ -1096,6 +1096,73 @@ public class GameManager : MonoBehaviour
 		}
 
 		return Mathf.Max(0, baseCost);
-	}	
+	}
+
+	// Cerebro effect
+	public void RecalculateHighestPowerOngoing(bool forPlayer)
+	{
+		// 1) Recolectar TODAS las cartas del bando
+		List<CardInstance> allCards = new();
+
+		foreach (var z in zones)
+		{
+			if (z == null) continue;
+
+			var list = forPlayer ? z.playerCards : z.aiCards;
+			foreach (var c in list)
+			{
+				if (c != null && c.data != null)
+					allCards.Add(c);
+			}
+		}
+
+		if (allCards.Count == 0) return;
+
+		// 2) Buscar si existe al menos una fuente de este ongoing
+		int sources = 0;
+		foreach (var c in allCards)
+		{
+			if (c.data.ongoingEffect is OngoingBuffHighestPowerCardsEffect)
+				sources++;
+		}
+
+		if (sources == 0) return;
+
+		int totalBonus = sources * 3;
+
+		// 3) Determinar el MAYOR poder actual (sin este buff)
+		int maxPower = int.MinValue;
+
+		foreach (var c in allCards)
+		{
+			// Importante: poder base + permanente,
+			// NO usar currentPower ya buffeado
+			int basePower = c.data.power + c.permanentPowerBonus;
+			if (basePower > maxPower)
+				maxPower = basePower;
+		}
+
+		// 4) Aplicar el bonus SOLO a las cartas que tengan ese poder
+		foreach (var c in allCards)
+		{
+			int basePower = c.data.power + c.permanentPowerBonus;
+
+			if (basePower == maxPower)
+			{
+				c.currentPower = basePower + totalBonus;
+			}
+			else
+			{
+				// reset correcto
+				c.currentPower = basePower;
+			}
+
+			c.UpdatePowerUI();
+		}
+
+		// 5) Actualizar UI de zonas
+		foreach (var z in zones)
+			z.UpdatePowerDisplay();
+	}
 
 }
