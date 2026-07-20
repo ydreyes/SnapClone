@@ -9,7 +9,7 @@ Este es un juego de cartas por turnos desarrollado en **Unity 2D**, inspirado en
 - Sistema de efectos dinámicos extensible.
 - Animaciones simples y lógica clara para prototipos rápidos.
 - UI nativa para mostrar estado del juego, zonas, victoria y derrota.
-- Compatible con Unity 2022.3.11f1.
+- Compatible con Unity 2022.3.63f3.
 
 ## 🛠️ Requisitos
 
