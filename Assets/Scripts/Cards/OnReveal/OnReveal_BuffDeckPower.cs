@@ -24,11 +24,13 @@ public class OnRevealBuffDeckPowerEffect : CardEffectBase
 		if (deck == null || deck.Count == 0)
 			return;
 
-		// Aplicar buff permanente a TODAS las cartas del deck
+		// Aplicar buff a TODAS las cartas del deck como poder pendiente
+		// (jamás se muta el asset CardData; se consume al instanciar la carta).
 		foreach (var cd in deck)
 		{
 			if (cd == null) continue;
-			cd.permanentPowerBonus += bonusPower;
+			if (forPlayer) gm.AddPendingPower(cd, bonusPower);
+			else gm.ai.AddPendingHandPower(cd, bonusPower);
 		}
 
 		Debug.Log(

@@ -1,10 +1,10 @@
 ## 1. Fase 0 - Terreno (deuda estructural, sin cambio de gameplay)
 
-- [ ] 1.1 Crear `BattleDirector` y migrar de `GameManager` el flujo de turno (EndTurn, RevealCardsInPriorityOrder, GetZoneOutcome, EvaluateGame) y la gestión de pilas (DiscardCard, DestroyCard, MoveCard); verificar partida completa de principio a fin sin cambios de comportamiento
-- [ ] 1.2 Crear `PowerCalculator` como único recálculo de poder de carta/zona y retirarlo de los 4 puntos actuales (PlayerController.cs:64, AIController.cs:66, GameManager.cs:686-694, Zone.cs:444-452); verificar con grep que no queda ninguna mutación de `data.power` en runtime
-- [ ] 1.3 Introducir `RuntimeCardState` (basePower + lista de modificadores + `currentPower` derivado) y eliminar la mutación de `CardData` en `Zone.RegisterOngoing` (Zone.cs:293-295); verificar jugando dos partidas seguidas que el poder base de la carta no cambia
-- [ ] 1.4 Consolidar el barajado duplicado (PlayerController.cs:12-21,47-53 y AIController.cs:13-22,39-46) en una utilidad `Deck`; verificar que no queda shuffle duplicado
-- [ ] 1.5 Eliminar o archivar el código heredado sin uso: `EncounterManager` (stub vacío), `MapController`, `MapNode`, `MapEnums`; verificar que la compilación no reporta referencias rotas
+- [x] 1.1 Crear `BattleDirector` y migrar de `GameManager` el flujo de turno (EndTurn, RevealCardsInPriorityOrder, GetZoneOutcome, EvaluateGame) y la gestión de pilas (DiscardCard, DestroyCard, MoveCard); verificar partida completa de principio a fin sin cambios de comportamiento
+- [x] 1.2 Crear `PowerCalculator` como único recálculo de poder de carta/zona y retirarlo de los 4 puntos actuales (PlayerController.cs:64, AIController.cs:66, GameManager.cs:686-694, Zone.cs:444-452); verificar con grep que no queda ninguna mutación de `data.power` en runtime
+- [x] 1.3 Introducir `RuntimeCardState` (basePower + lista de modificadores + `currentPower` derivado) y eliminar la mutación de `CardData` en `Zone.RegisterOngoing` (Zone.cs:293-295); verificar jugando dos partidas seguidas que el poder base de la carta no cambia
+- [x] 1.4 Consolidar el barajado duplicado (PlayerController.cs:12-21,47-53 y AIController.cs:13-22,39-46) en una utilidad `Deck`; verificar que no queda shuffle duplicado
+- [x] 1.5 Eliminar o archivar el código heredado sin uso: `EncounterManager` (stub vacío), `MapController`, `MapNode`, `MapEnums`; verificar que la compilación no reporta referencias rotas
 
 ## 2. Fase 1 - Nueva capa de campaña (meta-core)
 

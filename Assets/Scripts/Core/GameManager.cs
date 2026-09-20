@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
 	public AIController ai;
 	public List<Zone> zones;
 	public TurnManager turnManager;
+
+	// Flujo de turno y gestión de pilas (migrado desde GameManager al battle core)
+	public BattleDirector director;
 	
 	public TextMeshProUGUI energyText;
 	
@@ -52,8 +55,8 @@ public class GameManager : MonoBehaviour
 	public int aiPlaysThisTurn = 0;
 	
 	// Energía pendiente para el próximo turno
-	private int pendingPlayerEnergy = 0;
-	private int pendingAIEnergy = 0;
+	internal int pendingPlayerEnergy = 0;
+	internal int pendingAIEnergy = 0;
 	
 	// lógica para cartas descartadas
 	private Dictionary<CardData, int> pendingPowerByCard = new Dictionary<CardData, int>();
@@ -61,6 +64,7 @@ public class GameManager : MonoBehaviour
 	private void Awake()
 	{
 		Instance = this;
+		director = new BattleDirector(this);
 	}
 
 	void Start()
@@ -151,17 +155,7 @@ public class GameManager : MonoBehaviour
 	
 	public (int playerZones, int aiZones, bool playerWon) GetZoneOutcome()
 	{
-		int p = 0, a = 0;
-		foreach (var z in zones)
-		{
-			int pp = z.GetTotalPower(true);
-			int ap = z.GetTotalPower(false);
-			if (pp > ap) p++;
-			else if (ap > pp) a++;
-		}
-		
-		bool win = (p >= 2 && p > a);
-		return (p, a, win);
+		return director.GetZoneOutcome();
 	}
 	
 	// Random zone effects
@@ -298,53 +292,7 @@ public class GameManager : MonoBehaviour
 
 	public void EndTurn()
 	{
-		// IA juega antes de terminar turno
-		ai.PlayCardAutomatically();
-		RecalculateHandSizeOngoing(false);
-		// mostrar ocultar panel de info de zona
-		foreach (var zone in zones)
-		{
-			zone.NotifyTurnEnd();
-		}
-		
-		RevealCardsInPriorityOrder();
-		
-		var (pZones, aZones, _) = GetZoneOutcome();
-		if (pZones > aZones)
-			playerHasPriority = true;
-		else if (aZones > pZones)
-			playerHasPriority = false;
-
-		turnManager.EndTurn();
-		ResetPlaysThisTurn();
-		
-		if (pendingPlayerEnergy > 0) 
-		{
-			turnManager.playerEnergy += pendingPlayerEnergy;
-			pendingPlayerEnergy = 0;
-		}
-		
-		if (pendingAIEnergy > 0)
-		{
-			turnManager.aiEnergy += pendingAIEnergy;
-			pendingAIEnergy = 0;
-		}
-
-		foreach (var z in zones)
-			z.NotifyTurnStart();
-
-		player.DrawCard();
-		ai.DrawCard();
-		
-		RecalculateHandSizeOngoing(true);
-
-		UpdateEnergyDisplay();
-
-		// IA intenta apostar cada turno
-		ai.TryRandomBet(turnManager.currentTurn);
-		
-		pendingReveal.Clear();
-		playedOrderThisTurn.Clear();
+		director.EndTurn();
 	}
 	
 	public void UpdateEnergyDisplay()
@@ -355,44 +303,7 @@ public class GameManager : MonoBehaviour
 	// Este método se llama desde TurnManager cuando termina el turno 6
 	public void EvaluateGame()
 	{
-		ResolveEndGameEffects();
-		
-		var (pZones, aZones, playerWon) = GetZoneOutcome();
-		
-		// Mostramos resultado visual (vidas y puntos proyectados)
-		ShowResult(pZones, aZones, playerWon);
-	}
-	
-	private void ResolveEndGameEffects()
-	{
-		foreach (var z in zones)
-		{
-			if (z == null) continue;
-
-			// Jugador
-			foreach (var c in z.playerCards)
-			{
-				if (c == null || c.data == null) continue;
-				if (c.endGameEffectApplied) continue;
-				if (c.data.endGameEffect == null) continue;
-
-				c.data.endGameEffect.ApplyEffect(c, z);
-				c.endGameEffectApplied = true;
-			}
-
-			// IA
-			foreach (var c in z.aiCards)
-			{
-				if (c == null || c.data == null) continue;
-				if (c.endGameEffectApplied) continue;
-				if (c.data.endGameEffect == null) continue;
-
-				c.data.endGameEffect.ApplyEffect(c, z);
-				c.endGameEffectApplied = true;
-			}
-
-			z.UpdatePowerDisplay();
-		}
+		director.EvaluateGame();
 	}
 	
 	public void ShowResult(int playerWins, int aiWins, bool playerWon)
@@ -467,152 +378,22 @@ public class GameManager : MonoBehaviour
 	
 	public void RevealCardsInPriorityOrder()
 	{
-		// Si jugador tiene prioridad
-		if (playerHasPriority)
-		{
-			RevealSide(true);   // jugador
-			RevealSide(false);  // ia
-		}
-		else
-		{
-			RevealSide(false);  // ia
-			RevealSide(true);   // jugador
-		}
-
-		pendingReveal.Clear();
-		playedOrderThisTurn.Clear();
-	}
-
-	private void RevealSide(bool isPlayer)
-	{
-		foreach (var card in playedOrderThisTurn)
-		{
-			if (card.isPlayerCard != isPlayer) continue;
-			if (!pendingReveal.Contains(card)) continue;
-
-			var zone = GetZoneForCard(card);
-			if (zone == null) continue;
-
-			// On Reveal (1 vez)
-			if (card.data.onRevealEffect != null)
-				card.data.onRevealEffect.ApplyEffect(card, zone);
-
-			// Marcar revelada
-			card.isRevealed = true;
-
-			// Ongoing (activar al revelarse)
-			if (card.data.ongoingEffect != null && !card.effectApplied)
-			{
-				card.data.ongoingEffect.ApplyEffect(card, zone);
-				card.effectApplied = true;
-			}
-			
-			if (card.data.ongoingEffect is OngoingDiscardCountPowerEffect eff)
-			{
-				eff.Recalculate(card);
-			}
-
-			zone.UpdatePowerDisplay();
-		}
+		director.RevealCardsInPriorityOrder();
 	}
 	
 	public void DiscardCard(CardInstance card)
 	{
-		if (card == null || card.data == null)
-			return;
-
-		Debug.Log($"[DISCARD] {card.data.cardName}");
-		// quitar de mano
-		player.hand.Remove(card.data);
-		// registrar en pila
-		discardPile.Add(card.data);
-		// disparar WHEN DISCARDED (antes de destruir el GO)
-		if (card.data.onDiscardedEffect != null)
-		{
-			card.data.onDiscardedEffect.ApplyEffect(card, null);
-		}
-		// destruir GO
-		Destroy(card.gameObject);
-
-		RecalculateHandSizeOngoing(true);
-		RecalculateDiscardOngoing(false);
+		director.DiscardCard(card);
 	}
 
 	public void DestroyCard(CardInstance card)
 	{
-		
-		if (card == null || card.data == null)
-			return;
-			
-		if (card.cantBeDestroyed)
-		{
-			Debug.Log($"[DESTROY BLOCKED] {card.data.cardName} no puede ser destruida.");
-			return;
-		}
-
-		Debug.Log($"[DESTROY] {card.data.cardName}");
-		
-		// 🔹 ON DESTROY EFFECT
-		if (card.data.abilityType == AbilityType.OnDestroy && card.data.conditionalEffect != null)
-		{
-			card.data.conditionalEffect.ApplyEffect(card, GetZoneForCard(card));
-		}
-
-		// Si está en una zona, removerla
-		var zone = GetZoneForCard(card);
-		if (zone != null)
-		{
-			zone.RemoveCard(card);
-		}
-		else
-		{
-			// si estaba en mano
-			player.hand.Remove(card.data);
-		}
-
-		destroyedPile.Add(card.data);
-
-		Destroy(card.gameObject);
-		RecalculateDestroyedOngoing();
+		director.DestroyCard(card);
 	}
 	
 	public void MoveCard(CardInstance card, Zone from, Zone to)
 	{
-		if (card == null || from == null || to == null) return;
-		
-		if (card.cantBeMoved)
-		{
-			Debug.Log($"[MOVE BLOCKED] {card.data.cardName} no puede ser movida.");
-			return;
-		}
-
-		// seguridad: no mover si destino lleno
-		if (!to.CanAcceptCard(card)) return;
-
-		// Quitar de zona anterior (esto ya actualiza power)
-		from.RemoveCard(card);
-		if (card.spawnCopyOnMove) 
-		{
-			SpawnCopyInZone(card, from);
-		}
-		to.AddCard(card);
-		
-		//trigger when a card move Here
-		to.NotifyCardMovedHere(card, from);
-		
-		card.lastMoveTurn = turnManager.currentTurn;
-
-		if (!card.canMoveEachTurn)
-		{
-			card.hasMovedOnce = true;
-			card.canMoveOnce = false;
-		}
-
-		// refrescar textos
-		from.UpdatePowerDisplay();
-		to.UpdatePowerDisplay();
-
-		Debug.Log($"[MOVE] {card.data.cardName} movida de {from.name} a {to.name}");
+		director.MoveCard(card, from, to);
 	}
 	
 	public void RecalculateAdjacentLocationBonuses()
@@ -682,15 +463,13 @@ public class GameManager : MonoBehaviour
 			foreach (var c in z.playerCards)
 			{
 				if (c == null || c.data == null) continue;
-				//c.currentPower = c.data.power;
-				c.currentPower = c.data.power + c.permanentPowerBonus;
+				c.currentPower = PowerCalculator.ComputeBasePower(c) + c.permanentPowerBonus;
 			}
 
 			foreach (var c in z.aiCards)
 			{
 				if (c == null || c.data == null) continue;
-				//c.currentPower = c.data.power;
-				c.currentPower = c.data.power + c.permanentPowerBonus;
+				c.currentPower = PowerCalculator.ComputeBasePower(c) + c.permanentPowerBonus;
 			}
 		}
 
@@ -956,7 +735,11 @@ public class GameManager : MonoBehaviour
 
 		dst.gainsPowerWhenCardMovesHere = src.gainsPowerWhenCardMovesHere;
 		dst.gainsPowerWhenCardMovesHereAmount = src.gainsPowerWhenCardMovesHereAmount;
-		
+
+		// Estado runtime de poder: la copia hereda basePower y modificadores del origen
+		dst.state.basePower = src.state.basePower;
+		dst.state.modifiers.Clear();
+		dst.state.modifiers.AddRange(src.state.modifiers);
 
 		// Si tienes más flags de efectos, los copias aquí.
 	}

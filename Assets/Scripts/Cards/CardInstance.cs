@@ -6,6 +6,8 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 	public CardData data;
 	public bool isPlayerCard;
 	public int currentPower;
+	// Estado runtime de poder (base congelada + modificadores); nunca muta el asset CardData
+	public RuntimeCardState state = new RuntimeCardState();
 	// bandera para efecto ongoing
 	public bool effectApplied = false;
 	// bandera para efecto onreveal
@@ -326,6 +328,20 @@ public class CardInstance : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 		}
 
 		currentPower += amount;
+
+		UpdatePowerUI();
+
+		var zone = GameManager.Instance.GetZoneForCard(this);
+		if (zone != null) zone.UpdatePowerDisplay();
+	}
+
+	// Aplica un modificador de poder al estado runtime (base + modificadores) derivado.
+	public void AddModifier(IModifier modifier)
+	{
+		if (modifier == null) return;
+
+		state.modifiers.Add(modifier);
+		currentPower = state.currentPower + permanentPowerBonus;
 
 		UpdatePowerUI();
 

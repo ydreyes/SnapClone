@@ -27,8 +27,9 @@ public class OnRevealGiveTopDeckCardPlus3Effect : CardEffectBase
 		var top = pile[0];
 		if (top == null) return;
 
-		// Buff permanente a esa carta del mazo
-		top.permanentPowerBonus += bonus;
+		// Buff pendiente a esa carta del mazo (no se muta el asset CardData)
+		if (card.isPlayerCard) gm.AddPendingPower(top, bonus);
+		else gm.ai.AddPendingHandPower(top, bonus);
 
 		Debug.Log($"[OnReveal] {card.data.cardName}: {top.cardName} (top deck) gana +{bonus} Power.");
 	}

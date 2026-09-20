@@ -37,12 +37,11 @@ public class OnRevealBuffHandPowerEffect : CardEffectBase
 		else
 		{
 			// La IA no tiene CardInstance en mano.
-			// Solución correcta: aplicar el buff al CardData,
-			// ya que esas cartas todavía no existen en el tablero.
+			// Se acumula el buff como poder pendiente (no se muta el asset CardData).
 			foreach (var cd in gm.ai.hand)
 			{
 				if (cd == null) continue;
-				cd.permanentPowerBonus += bonusPower;
+				gm.ai.AddPendingHandPower(cd, bonusPower);
 			}
 
 			Debug.Log($"[ON REVEAL][AI] Todas las cartas en la mano de la IA ganan +{bonusPower} Power.");

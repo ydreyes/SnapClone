@@ -51,12 +51,12 @@ public class EndTurnBuffHandIfWinningElseMoveEffect : CardEffectBase
 		}
 		else
 		{
-			// IA: no tiene UI en mano => guardamos el bonus en CardData (simple y funcional)
-			// Si NO quieres tocar CardData, dime y lo hacemos con un diccionario en AIController.
+			// IA: no tiene UI en mano => guardamos el bonus como poder pendiente
+			// (jamás se muta el asset CardData; se aplica al instanciar).
 			foreach (var cd in gm.ai.hand)
 			{
 				if (cd == null) continue;
-				cd.power += amount;
+				gm.ai.AddPendingHandPower(cd, amount);
 			}
 		}
 	}

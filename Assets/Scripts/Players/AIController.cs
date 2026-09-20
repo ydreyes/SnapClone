@@ -10,15 +10,26 @@ public class AIController : MonoBehaviour
 	public Transform aiZoneArea;
 	public bool aiBet = false;
 
+	// Bonos de poder pendientes para cartas de la IA (drawPile/mano).
+	// Evita mutar CardData (asset) en runtime; se aplica al instanciar la carta.
+	private readonly Dictionary<CardData, int> pendingHandPower = new Dictionary<CardData, int>();
+
+	public void AddPendingHandPower(CardData card, int amount)
+	{
+		if (card == null || amount == 0) return;
+		pendingHandPower.TryGetValue(card, out int current);
+		pendingHandPower[card] = current + amount;
+	}
+
+	public int GetPendingHandPower(CardData card)
+	{
+		if (card == null) return 0;
+		return pendingHandPower.TryGetValue(card, out int value) ? value : 0;
+	}
+
 	public void ShuffleDeck()
 	{
-		for (int i = 0; i < deck.Count; i++)
-		{
-			var temp = deck[i];
-			int randomIndex = Random.Range(i, deck.Count);
-			deck[i] = deck[randomIndex];
-			deck[randomIndex] = temp;
-		}
+		Deck.Shuffle(deck);
 	}
 
 	public void DrawCard()
@@ -33,17 +44,12 @@ public class AIController : MonoBehaviour
 	public void ResetDeckAndHand()
 	{
 		hand.Clear();
+		pendingHandPower.Clear();
 
 		drawPile = new List<CardData>(deck);
 
-		// mezclar drawPile
-		for (int i = 0; i < drawPile.Count; i++)
-		{
-			int r = Random.Range(i, drawPile.Count);
-			var tmp = drawPile[i];
-			drawPile[i] = drawPile[r];
-			drawPile[r] = tmp;
-		}
+		// mezclar drawPile (barajado centralizado en Deck)
+		Deck.Shuffle(drawPile);
 	}
 
 	public void PlayCardAutomatically()
@@ -62,8 +68,15 @@ public class AIController : MonoBehaviour
 				GameObject cardGO = Instantiate(cardPrefab);
 				CardInstance instance = cardGO.GetComponent<CardInstance>();
 				instance.data = card;
-				//instance.currentPower = card.power;
-				instance.currentPower = card.power + card.permanentPowerBonus;
+				instance.state.basePower = PowerCalculator.ComputeBase(card);
+				instance.currentPower = instance.state.currentPower;
+				// Bonos de mano/deck acumulados (antes se mutaba el asset CardData)
+				int handBonus = GetPendingHandPower(card);
+				if (handBonus != 0)
+				{
+					instance.permanentPowerBonus += handBonus;
+					instance.currentPower += handBonus;
+				}
 				instance.UpdatePowerUI();
 				instance.isPlayerCard = false;
 				// card can move

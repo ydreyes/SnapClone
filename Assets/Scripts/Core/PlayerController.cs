@@ -11,13 +11,7 @@ public class PlayerController : MonoBehaviour
 
 	public void ShuffleDeck()
 	{
-		for (int i = 0; i < deck.Count; i++)
-		{
-			var temp = deck[i];
-			int randomIndex = Random.Range(i, deck.Count);
-			deck[i] = deck[randomIndex];
-			deck[randomIndex] = temp;
-		}
+		Deck.Shuffle(deck);
 	}
 
 	public void DrawCard()
@@ -43,14 +37,8 @@ public class PlayerController : MonoBehaviour
 		}
 		// restaurar drawPile como nueva copia del deck base
 		drawPile = new List<CardData>(deck);
-		// mezclar el drawPile
-		for (int i = 0; i < drawPile.Count; i++)
-		{
-			var temp = drawPile[i];
-			int randomIndex = Random.Range(i, drawPile.Count);
-			drawPile[i] = drawPile[randomIndex];
-			drawPile[randomIndex] = temp;
-		}
+		// mezclar el drawPile (barajado centralizado en Deck)
+		Deck.Shuffle(drawPile);
 	}
 
 	void InstantiateCard(CardData cardData)
@@ -60,8 +48,8 @@ public class PlayerController : MonoBehaviour
 		instance.Init(handArea);
 		
 		instance.data = cardData;
-
-		instance.currentPower = cardData.power + cardData.permanentPowerBonus;
+		instance.state.basePower = PowerCalculator.ComputeBase(cardData);
+		instance.currentPower = instance.state.currentPower;
 		int pending = 0;
 		if (GameManager.Instance.TryConsumePendingPower(cardData, out pending))
 		{
@@ -95,7 +83,8 @@ public class PlayerController : MonoBehaviour
 
 		instance.Init(handArea);
 		instance.data = cardData;
-		instance.currentPower = cardData.power;
+		instance.state.basePower = PowerCalculator.ComputeBase(cardData);
+		instance.currentPower = instance.state.currentPower;
 		int pending = 0;
 		if (GameManager.Instance.TryConsumePendingPower(cardData, out pending))
 		{

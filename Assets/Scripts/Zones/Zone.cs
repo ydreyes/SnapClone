@@ -288,11 +288,13 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 
 	public void RegisterOngoing(CardInstance card)
 	{
-		// Aquí puedes activar efectos como: +1 poder a todas las cartas en esta zona
+		// Antes mutaba CardData.power (corrompía el asset entre partidas).
+		// Ahora aplica un modificador de poder a las instancias (RuntimeCardState),
+		// jamás al ScriptableObject.
 		foreach (var c in playerCards)
-			c.data.power += 1;
+			if (c != null) c.AddModifier(new PowerModifier(1));
 		foreach (var c in aiCards)
-			c.data.power += 1;
+			if (c != null) c.AddModifier(new PowerModifier(1));
 			
 		UpdatePowerDisplay();	
 	}
@@ -438,17 +440,17 @@ public class Zone : MonoBehaviour, IPointerClickHandler, IDropHandler
 	
 	public void RecalculateZonePowers()
 	{
-		// 1) Reset: volver al poder base
+		// 1) Reset: volver al poder base (PowerCalculator: base congelado, sin mutar el asset)
 		foreach (var c in playerCards)
 		{
 			if (c == null || c.data == null) continue;
-			c.currentPower = c.data.power;
+			c.currentPower = PowerCalculator.ComputeBasePower(c);
 		}
 
 		foreach (var c in aiCards)
 		{
 			if (c == null || c.data == null) continue;
-			c.currentPower = c.data.power;
+			c.currentPower = PowerCalculator.ComputeBasePower(c);
 		}
 
 		// 2) Aplicar auras Ongoing "other ongoing here +2"
