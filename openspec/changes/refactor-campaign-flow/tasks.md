@@ -1,10 +1,18 @@
 ## 1. Fase 0 - Terreno (deuda estructural, sin cambio de gameplay)
 
-- [x] 1.1 Crear `BattleDirector` y migrar de `GameManager` el flujo de turno (EndTurn, RevealCardsInPriorityOrder, GetZoneOutcome, EvaluateGame) y la gestión de pilas (DiscardCard, DestroyCard, MoveCard); verificar partida completa de principio a fin sin cambios de comportamiento
-- [x] 1.2 Crear `PowerCalculator` como único recálculo de poder de carta/zona y retirarlo de los 4 puntos actuales (PlayerController.cs:64, AIController.cs:66, GameManager.cs:686-694, Zone.cs:444-452); verificar con grep que no queda ninguna mutación de `data.power` en runtime
-- [x] 1.3 Introducir `RuntimeCardState` (basePower + lista de modificadores + `currentPower` derivado) y eliminar la mutación de `CardData` en `Zone.RegisterOngoing` (Zone.cs:293-295); verificar jugando dos partidas seguidas que el poder base de la carta no cambia
-- [x] 1.4 Consolidar el barajado duplicado (PlayerController.cs:12-21,47-53 y AIController.cs:13-22,39-46) en una utilidad `Deck`; verificar que no queda shuffle duplicado
-- [x] 1.5 Eliminar o archivar el código heredado sin uso: `EncounterManager` (stub vacío), `MapController`, `MapNode`, `MapEnums`; verificar que la compilación no reporta referencias rotas
+- [X] 1.1 Crear `BattleDirector` y migrar de `GameManager` el flujo de turno (EndTurn, RevealCardsInPriorityOrder, GetZoneOutcome, EvaluateGame) y la gestión de pilas (DiscardCard, DestroyCard, MoveCard); verificar partida completa de principio a fin sin cambios de comportamiento
+- [X] 1.2 Crear `PowerCalculator` como único recálculo de poder de carta/zona y retirarlo de los 4 puntos actuales (PlayerController.cs:64, AIController.cs:66, GameManager.cs:686-694, Zone.cs:444-452); verificar con grep que no queda ninguna mutación de `data.power` en runtime
+- [X] 1.3 Introducir `RuntimeCardState` (basePower + lista de modificadores + `currentPower` derivado) y eliminar la mutación de `CardData` en `Zone.RegisterOngoing` (Zone.cs:293-295); verificar jugando dos partidas seguidas que el poder base de la carta no cambia
+- [X] 1.4 Consolidar el barajado duplicado (PlayerController.cs:12-21,47-53 y AIController.cs:13-22,39-46) en una utilidad `Deck`; verificar que no queda shuffle duplicado
+- [X] 1.5 Eliminar o archivar el código heredado sin uso: `EncounterManager` (stub vacío), `MapController`, `MapNode`, `MapEnums`; verificar que la compilación no reporta referencias rotas
+
+## Fase 0.5 - Migración de plataforma a Unity 2023.1.22f1 (prerequisito de Fase 1)
+
+- [X] 0.5.1 Quitar de `.gitignore` las entradas `ProjectSettings/ProjectVersion.txt` y `ProjectSettings/EditorBuildSettings.asset` para que queden versionables; verificar con `git check-ignore` que ya no se ignoran
+- [X] 0.5.2 Fijar `ProjectSettings/ProjectVersion.txt` en `2023.1.22f1` y trackearlo en git (`git add`), junto con `ProjectSettings/EditorBuildSettings.asset`
+- [X] 0.5.3 Actualizar la versión declarada a `2023.1.22f1` en `AGENTS.md`, `openspec/config.yaml` y `README.md`
+- [ ] 0.5.4 (manual/equipo) Avisar que antes del pull cada dev con `ProjectVersion.txt` local propio debe borrarlo o hacer `git stash` para evitar "untracked working tree files would be overwritten by checkout"
+- [ ] 0.5.5 (manual/equipo) Commit y push del pin de versión (con `manifest.json`/`packages-lock.json`) para que el resto del equipo abra el proyecto en `2023.1.22f1`
 
 ## 2. Fase 1 - Nueva capa de campaña (meta-core)
 
@@ -21,6 +29,10 @@
 - [ ] 2.11 Retirar del build las escenas del meta antiguo (WorldMapScene, ZoneScene, ShopScene, CollectionBuilderScene, CollectionTrackScene, DeckCharacterSelect) y eliminar sus controladores UI; verificar que la lista de build corresponde al nuevo flujo y no hay referencias de escena rotas
 - [ ] 2.12 Retirar el sistema de apuestas SNAP: quitar botón/apuesta de `GameManager` (InitBetButton, betButton, betText), `PlayerProgress.TryPlaceBet/CancelBet/betActive`, `AIController.aiBet/TryRandomBet` y los textos/UI asociados; verificar que no queda referencia y que una partida normal no muestra apuestas (cumple "Supresión de apuestas")
 - [ ] 2.13 Parametrizar el mensaje de fin de run: derrota (vidas 0 o jefe final perdido) vs victoria (jefe final ganado) en las pantallas finales; verificar ambos caminos muestran textos distintos (cumple "Fin de campaña")
+- [ ] 2.14 Guía `CampaignConfig_GUIDE.md` (ver AGENTS.md): crear el asset desde el menú `Create`, valores por defecto y asignación a `RunManager`/`CampaignController`; verificar que los pasos de Editor dejan el asset conectado
+- [ ] 2.15 Guía `Docs/UI/CharacterSelect_Draft_GUIDE.md`: árbol de jerarquía del panel de draft inicial (ofertas 1-de-3) sobre `CharacterSelect`, componentes a añadir y referencias a arrastrar en `CardDraftController`
+- [ ] 2.16 Guía `Docs/UI/RewardHub_GUIDE.md`: jerarquía de la escena de recompensas (3 slots + botón saltar), componentes y navegación de escenas a conectar
+- [ ] 2.17 Guía de contenido de subjefes/jefe final: crear los efectos SO, los `CardData` y los `EnemyData` con deck asignado en `Resources/Enemies/Bosses`; verificar el cableado documentado
 
 ## 3. Fase 2 - Sistema de Perks
 
@@ -28,6 +40,7 @@
 - [ ] 3.2 Implementar el slot único de perk por carta del run (`RunManager.SetPerk(cardId, perk)` con filtro de objetivos sin perk y sin reemplazo); verificar que una carta con perk no puede recibir otro (cumple "Un perk por carta")
 - [ ] 3.3 Inyectar los `PerkModifier` en cada `CardInstance` al jugar la carta y heredarlos en copias vía `CopyRuntimeState`; verificar re-probar el efecto del perk en dos batallas seguidas del mismo run (cumple "Efecto del perk en runtime")
 - [ ] 3.4 Crear la UI de oferta de perk (1-de-3 perks + elegir carta objetivo sin perk) en RewardHubScene, con estado "no disponible" si todas las cartas tienen perk; verificar ambos estados y el caso all-perked (cumple "Oferta de perk post-batalla")
+- [ ] 3.5 Guía `PerkData_GUIDE.md` (SO + slot) y guía `Docs/UI/PerkOffer_GUIDE.md` (3 perks + elección de carta objetivo); verificar que los pasos de Editor permiten equipar un perk de punta a punta
 
 ## 4. Fase 3 - Rotación de recompensas y remoción
 
@@ -35,6 +48,7 @@
 - [ ] 4.2 Crear `RemovalController`: elegir 1 carta de la baraja a eliminar, o saltar sin consecuencias; sin reemplazo inmediato en el mismo turno; verificar que la baraja queda con uno menos y la carta desaparece del run
 - [ ] 4.3 Integrar el +1 carta post-batalla (DraftController) respetando el tope de 12 (bloqueo/skip cuando está lleno); verificar el escenario de baraja al máximo del spec card-drafting
 - [ ] 4.4 Validar end-to-end la rotación completa en un run de prueba de 22 batallas simuladas; verificar que la recompensa se concede también en derrotas (Q1)
+- [ ] 4.5 Guía `Docs/UI/CardRemoval_GUIDE.md`: pantalla de remoción (elegir carta o saltar) reutilizando el hub; verificar el cableado de referencias descrito
 
 ## 5. Fase 4 - Balance y pulido
 
@@ -47,3 +61,9 @@
 
 - [ ] 6.1 Ejecutar el flujo completo (elegir personaje, draftear a 8, ganar 5 + subjefe, x3 loops, jefe final) y comprobar que victoria y derrota terminan en las pantallas finales correctas
 - [ ] 6.2 Correr `openspec validate refactor-campaign-flow` tras la implementación y confirmar que el change queda validado y listo para archivar
+- [ ] 6.3 Verificar que cada mejora de las Fases 1-4 trae su `*_GUIDE.md` con pasos de Editor y, si aplica, árbol de UI (regla permanente de `AGENTS.md`)
+
+## 7. Convención de guías de implementación manual
+
+- [ ] 7.1 Redactar `AGENTS.md` con la regla permanente y la plantilla obligatoria de guía (código/contenido y UI); verificar que describe creación de SO, asignación de campos, registro en pool/deck/escena y árbol de UI
+- [ ] 7.2 Registrar la convención en `openspec/config.yaml` (`context`, `rules`, `operations.apply.guidance`); verificar que un apply futuro exige la guía antes de cerrar una tarea con cableado

@@ -9,11 +9,11 @@ Este es un juego de cartas por turnos desarrollado en **Unity 2D**, inspirado en
 - Sistema de efectos dinámicos extensible.
 - Animaciones simples y lógica clara para prototipos rápidos.
 - UI nativa para mostrar estado del juego, zonas, victoria y derrota.
-- Compatible con Unity 2022.3.63f3.
+- Compatible con Unity 2023.1.22f1.
 
 ## 🛠️ Requisitos
 
-- Unity **2022.3.11f1** o superior.
+- Unity **2023.1.22f1** o superior.
 - Sistema operativo: Windows, macOS o Linux.
 - Editor de texto o IDE recomendado: Visual Studio o Rider.
 

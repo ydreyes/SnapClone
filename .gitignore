@@ -54,7 +54,3 @@ firebase-*
 *.ipa
 *.xcodeproj
 *.xcworkspace
-
-# Local Project Settings
-ProjectSettings/EditorBuildSettings.asset
-ProjectSettings/ProjectVersion.txt

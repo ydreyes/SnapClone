@@ -17,6 +17,7 @@ El meta-juego actual (mapa mundial con zonas y nodos, tienda, colección, editor
 - **BREAKING** — Se retira el sistema de apuestas SNAP (botón de apuesta, `betActive`, apuestas de la IA, vidas ±).
 - **BREAKING** — Se retiran del build las escenas del meta antiguo (WorldMap, Zone, Shop, CollectionBuilder, CollectionTrack, DeckCharacterSelect) y su código asociado (MapController/MapNode/MapEnums, EncounterManager stub, ZoneController/WorldMapController).
 - Refactor estructural preliminar: descomposición de `GameManager`, modelo de estado runtime de cartas (sin mutar `CardData`), cálculo de poder centralizado, y persistencia de run serializable.
+- **Convención de entrega** — cada mejora que requiera cableado en el Editor (ScriptableObjects, efectos de carta, prefabs, escenas o UI) entrega además una **guía Markdown de implementación manual** (`<Feature>_GUIDE.md`) junto al código, con los pasos de Editor y el árbol de UI a modificar/crear. Ver `AGENTS.md` (regla permanente).
 
 ## Capabilities
 
@@ -38,3 +39,4 @@ El meta-juego actual (mapa mundial con zonas y nodos, tienda, colección, editor
 - **Contenido**: crear cartas de subjefes/jefe final (`Resources/Cards/SubBosses`, `Resources/Cards/Boss`), enemigos (`Resources/Enemies/Bosses`) y la pool de draft por personaje.
 - **Build**: lista de compilación pasa de 12 escenas a las del nuevo flujo (MainMenu, CharacterSelect, Draft?, GameScene, GameOver/GameCompleted).
 - **Persistencia**: reemplazo de PlayerPrefs sueltos por un estado de run serializable con guardado/carga.
+- **Documentación**: una guía de implementación manual por mejora que toque assets, escenas, prefabs o UI (p. ej. `CampaignConfig_GUIDE.md`, `PerkData_GUIDE.md`, `Docs/UI/RewardHub_GUIDE.md`), conforme a la regla permanente de `AGENTS.md`.

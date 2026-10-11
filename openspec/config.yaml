@@ -1,32 +1,34 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+# Project context (shown to AI when creating artifacts).
+context: |
+  Proyecto: SnapClone - juego de cartas 2D por turnos en Unity 2023.1.22f1 (batalla 1v1, 3 zonas, 6 turnos).
+  Arquitectura en dos capas: Battle Core (batalla) y capa Campaign (run, draft, recompensas, perks).
+  UI: uGUI + TextMeshPro. Escenas y prefabs se cablean manualmente en el Unity Editor.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Limitacion clave: la IA no puede crear/asignar ScriptableObjects .asset, arrastrar referencias
+  serializadas en el Inspector, ni editar jerarquias de escena o composicion de prefabs. Por eso
+  todo cambio debe entregar, ademas del codigo, una guia Markdown de implementacion manual.
+  Ver AGENTS.md (regla permanente y plantilla obligatoria).
 
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+# Per-artifact rules.
+rules:
+  proposal:
+    - Indicar explicitamente que entregables de UI/asset requieren guia de implementacion manual.
+  tasks:
+    - Toda tarea que cree o modifique ScriptableObjects, efectos, prefabs, escenas o UI debe
+      incluir su tarea de guia `*_GUIDE.md` (ver AGENTS.md).
+  design:
+    - Documentar en las decisiones cualquier cableado de Editor que quede pendiente para el humano.
+
+# Per-operation guidance (advisory for apply and archive).
+operations:
+  apply:
+    guidance:
+      - Al completar una tarea que toca assets, escenas, prefabs o UI, generar la guia
+        `*_GUIDE.md` correspondiente segun AGENTS.md antes de marcarla como hecha.
+      - No intentar crear .asset ni editar escenas/prefabs programaticamente; describirlo en la guia.
+      - Recordar que Unity genera el .meta del .md al abrir el proyecto.
+  archive:
+    guidance:
+      - Verificar que cada mejora de la fase trae su guia de implementacion manual.

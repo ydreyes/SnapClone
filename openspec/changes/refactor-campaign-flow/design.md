@@ -106,6 +106,15 @@ CampaignConfig (ScriptableObject)
 - `CharacterData` pasa a definir: 3 cartas iniciales + `draftPool` (lista de `CardData` de la que salen las ofertas 1-de-3). Si `draftPool` está vacío, se usa la colección completa de `Resources/Cards/PlayerCards` como fallback (asumido; ver Open Questions).
 - `DeckData` sigue valiendo para los mazos enemigos (`EnemyData.deck`).
 
+### D10. Guías de implementación manual (contenido + UI)
+- **Problema**: la IA escribe `.cs`, pero no puede crear/asignar ScriptableObjects `.asset`, ni arrastrar referencias serializadas, ni editar jerarquías de escena/prefab. Sin instrucciones, el cableado queda incompleto y no reproducible.
+- **Decisión**: regla permanente (ver `AGENTS.md`): toda mejora que toque assets, escenas, prefabs o UI entrega una **guía Markdown de implementación manual** en español, junto al código.
+  - Código/contenido: `<misma carpeta del script>/<Feature>_GUIDE.md`.
+  - UI/flujo: `Docs/UI/<Feature>_GUIDE.md`.
+  - Secciones obligatorias: resumen, archivos de código, pasos en el Editor (crear SO desde el menú, asignar al campo del asset destino, registrar en pool/deck/escena), cambios de UI (árbol de jerarquía + componentes + referencias a arrastrar), verificación en Play y rollback.
+- **Encaje con el flujo**: la guía es el contrato entre la IA y el desarrollador para cerrar el cableado; el `tasks.md` lista una tarea de guía por mejora y el cierre verifica su existencia.
+- **Alternativa descartada**: generar los `.asset` o editar escenas/prefabs programáticamente (escribir YAML con GUIDs). Se descarta por fragilidad: un GUID o `fileID` incorrecto corrompe el asset y es difícil de revisar/depurar; además contradice la petición de que un developer cierre la UI de forma mantenible.
+
 ## Risks / Trade-offs
 
 - [Decomponer GameManager puede romper flujos de efecto que hoy dependen de su estado global] → Mitigación: Fase 0 aislada (sin cambio de gameplay), con smoke test manual de partida tras cada extracción; mantener `GameManager.Instance` como fachada mientras se migran los consumidores.
